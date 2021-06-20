@@ -2,6 +2,477 @@
 
 Collection of notes and code about the Computability and Computational Complexity course, part of the Master in Computer Science at the Università di Trento (UNITN).
 
+* Computational Complexity
+** $\text{DTIME}$ and $\text{NTIME}$
+
+From now on we focus our attention on the class of problems    \begin{equation}
+R=\{L|\exists \text{ Turing machine } M \text{ that decides } L \} \notag
+\end{equation}. Considering the languages that can be decided in $O(f(n)), f: \mathbb{N} \rightarrow \mathbb{N}$, we have
+- $\text{DTIME}(f(n))=\{L|L\in R, T_M(n)\in O(f(n))\}$, solvable by a non-deterministic Turing machine.
+- $\text{NTIME}(f(n))=\{L|L\in R, NT_M(n)\in O(f(n))\}$, solvable by a non-deterministic Turing machine.
+  
+** $\textbf{P}$ and $\textbf{NP}$
+
+Considering only the languages that can be decided in polynomial time, we have the following complexity classes
+- Polynomial time $\textbf{P} = \bigcup_{c\geq 1} \text{DTIME}(n^c)$, solvable by a deterministic Turing machine
+- Nondeterministic polynomial time $\textbf{NP} = \bigcup_{c\geq 1} \text{NTIME}(n^c)$, solvable by a non-deterministic Turing machine
+
+Lets consider a language $L \notin P, L \in NP$, $L$ is a problem such that each candidate solution
+1. Is /small/, having polynomial size w.r.t the input
+2. Takes polynomial time to be verified
+
+This pattern can implemented efficiently using a non-deterministic
+Turing machine where
+1. Each path of the computation tree is of polynomial lenght
+2. The written result of each path can be verified in polynomial number of steps
+
+The class of Polynomial Certificates $\mathbf{PC}$ collects all the languages s.t.
+
+\begin{equation}
+\text{ input } w \in \mathbf{PC} \notag \iff \exists \text{ certificate } u \text{ that proves } w \in L \text{ in polynomial time}
+\end{equation}
+
+Since $\mathbf{PC}=\mathbf{NP}$ this is also an alternative definition of the latter.
+
+For sure $P \subseteq NP$, but is $P=NP$? This is still an open question
+- A language $L\in \textbf{NP-hard} \iff L' \leq_p L, \forall L'\in \textbf{NP}$. Also note that if $L\in \textbf{NP-hard}\wedge L \leq_p L' \Rightarrow L' \in \textbf{NP-hard}$.
+- $\textbf{NP-complete}\subseteq \textbf{NP}$ contains the hardest problems in $\texfbf{NP}$: a language $L\in\textbf{NP-complete}\iff L\in\textbf{NP} \wedge L\in\textbf{NP-hard}$.
+- We know that $\textbf{P} = \textbf{NP} \iff \exists L | L \in P \wedge L \in \textbf{NP-complete}$.
+
+This pattern can implemented efficiently using a non-deterministic Turing machine that guesses a /certificate/ for an input $w$.
+** $\textbf{P}$ languages
+
+*** Reachability
+
+\begin{equation}
+\text{REACHABILITY}=\{(G,s,t)| \exists \text{ a path from node } s \text{ to node } t \text{ in the directed graph } G\} \notag
+\end{equation}
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\KwData{Directed graph $G=(V,E)$ and nodes $s,t$}
+\KwResult{$Y$ if there is a path from $s$ to $t$, $N$ otherwise}
+ \tcp{Done in constant time w.r.t. input size}
+ init an empty queue $Q$\;
+ mark node $s$ as $visited$\;
+ append $s$ to $Q$\;
+ \tcp{At most $|V|$ iterations, visiting all the nodes in $G$}
+ \While{$Q$ is not empty}{
+  extract node $v$, the first element of $Q$\;
+  \If{$v$ is $t$}{
+   \Return Y\;
+   }
+  \tcp{At most $|V|$ iterations, all the the nodes are neighbours of $v$}
+  \ForAll{$(v,u) \in E$ s.t. $u$ is not $visited$}{
+   mark node $u$ as $visited$\;
+   append $u$ to $Q$\;
+  }\EndFor
+ }
+ \Return $N$\;
+ \caption{Breadth-first search, in $O(n^2)$ with $n=|V|$}
+\end{algorithm}
+
+*** Prime
+
+\begin{equation}
+\text{PRIME}=\{<N>|N\text{ is prime}\},\quad <N>\text{ binary encoding of }N \in \mathbb{N} \notag
+\end{equation}
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\KwData{$<N>$}
+\KwResult{$Y$ if $N$ is prime, $N$ otherwise}
+ \tcp{At most $N$ iterations}
+ \ForAll{$k=2$ to $N-1$}{
+  \If{$k$ divides $N$}{
+   \Return $N$\;
+  }
+ }\EndFor
+ \Return $Y$\;
+ \caption{Naive iteration, in $O(N)$}
+\end{algorithm}
+
+However, this algorithm is not polynomial in the /size/ of the input: since the input has been encoded in binary, we use $n=\left\lceil \log_2 N \right\rceil$ bits to encode $N$. This means that $N \in O(2^n)$ and the algorithm is exponential w.r.t to the input size.
+** $\textbf{NP-complete}$ languages
+
+*** SAT and Cook's Theorem
+
+A CNF (/Conjunctive Normal Form/) is a boolean formula of the form
+
+\begin{equation}
+C_1 \wedge C_2 \wedge \cdots \wedge C_n,\quad \text{ with clauses } C_i=(l_1 \vee l_2 \vee \cdots \vee l_k) \text{ having literals } l_j\notag
+\end{equation}
+
+\begin{equation}
+\varphi=(x_1 \vee x_2 \vee x_2 \vee \bar{x}_3) \wedge (x_4 \vee \bar{x}_5) \wedge (x_1 \vee \bar{x}_5) \notag
+\end{equation}
+
+\begin{equation}
+\text{SAT}=\{\varphi|\varphi \text{ is a satisfiable CNF}\} \notag
+\end{equation}
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\KwData{A CNF boolean formula $\varphi$}
+\KwResult{$Y$ if $\varphi$ is a satisfiable CNF, $N$ otherwise}
+ \tcp{At most $m$ iterations, checking all the clauses}
+ \ForAll{$C_i$ of $\varphi$}{
+  $cvalue = False$\;
+  \tcp{At most $c$ iterations, checking all the literals}
+  \ForAll{$l_j$ of $C_i$}{
+   \If{$l_j = True$}{
+    $cvalue = True$\;
+    break\;
+   }
+  }
+  \If{cvalue = False}{
+   \Return $N$\;
+  }
+ }
+ \Return $Y$\;
+ \caption{Naive iterations, in $O(2^n)$ with $n$ clauses}
+\end{algorithm}
+
+Cook's theorem states that $\text{SAT} \in \mathbf{NP-complete}$.
+
+*** Independent set
+
+$S$ is an /independent set/ in $G=(V,E)$ if and only if there is no edge connecting any pair of nodes in $S$.
+
+\begin{equation}
+\text{IS}=\{ (G,K) |G \text{ undirected graph}, \exists S \text{ independent set s.t. |S|} \ge k\} \notag
+\end{equation}
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\KwData{Undirected graph $G$, cardinality $k$}
+\KwResult{$Y$ if $G$ contains an indipendent set $S$ s.t. $|S| \geq k$, $N$ otherwise}
+ \tcp{At most $\sum_{i=k}^{n} \binom{n}{i}$ iterations, checking all the possible sets with at least $k$ nodes}
+ \ForAll{Set of nodes $S$ s.t. $|S| \geq k$}{
+  \tcp{At most $n(n-1)/2$ iterations, checking all the pairs when $|S|=n$}
+  \ForAll{$(u,v) \in S$}{
+   \If{$(u,v)$ are connected}{
+    break\;
+   }
+  }
+  \Return $Y$\;
+ }
+ \Return $N$\;
+ \caption{Naive iterations, in $O(n^2 \sum_{i=k}^n \frac{n!}{i!(n-i)!})$ with $n$ nodes}
+\end{algorithm}
+
+$\text{IS} \in \textbf{NP-complete}$ since
+1. $\text{IS} \in \textbf{NP}$
+2. $\text{IS} \in \textbf{NP-hard}$, we can define a polynomial reduction $\text{EXACT-3-SAT} \leq_p \text{IS}$
+
+*** Vertex cover
+
+$VC$ is a /vertex cover/ in $G=(V,E)$ if and only if all the vertices of $G$ are touched by some node in $VC$.
+
+\begin{equation}
+\text{VCOVER}=\{(G,k)|G \text{ undirected graph }, \exists VC \text{ vertex cover s.t. } |VC| \leq k\} \notag
+\end{equation}
+
+Notice that $S$ is an independent set in $G$ if and only if $V\setminus S$ is a vertex cover of $G$.
+
+$\text{VCOVER} \in \textbf{NP-complete}$ since
+1. $\text{VCOVER} \in \textbf{NP}$
+2. $\text{VCOVER} \in \textbf{NP-hard}$, we can define a polynomial reduction $\text{IS} \leq_p \text{VCOVER}$
+
+*** Clique
+
+$C$ is a /clique/ in $G=(V,E)$ if and only if the nodes in $C$ form a fully connected subgraph in $G$.
+
+\begin{equation}
+\text{CLIQUE}=\{(G,k)|G \text{ undirected graph }, \exists C \text{ clique s.t. } |VC| \geq k\} \notag
+\end{equation}
+
+Let $G'$ have the same nodes as $G$ but "complementary" edges, then a independent set $S$ in $G$ is a clique $C$ in $G'$.
+
+$\text{CLIQUE} \in \textbf{NP-complete}$ since
+1. $\text{CLIQUE} \in \textbf{NP}$
+2. $\text{CLIQUE} \in \textbf{NP-hard}$, we can define a polynomial reduction $\text{IS} \leq_p \text{CLIQUE}$
+
+*** Binary integer programming
+
+$A \in \mathbb{Z}^{m \times n}$ and $\bar{b} \in \mathbb{Z}^m$ contain respectively the coefficients $a_{ij} \in \mathbb{Z}$ and $b_i \in \mathbb{Z}$ of a system of linear inequalities, and to solve the system means finding a $\bar{x}$ s.t. $A \cdot \bar{x} \leq \bar{b}$.
+
+\begin{equation}
+\text{BIP} = \{(A,\bar{b})|A \in \mathbb{Z}^{m \times n}, \bar{b} \in \mathbb{Z}^m, \exists \bar{x}\in \{0,1\}^n | A \cdot \bar{x} \leq \bar{b}\} \notag
+\end{equation}
+
+$\text{BIP} \in \textbf{NP-complete}$ since
+1. $\text{BIP} \in \textbf{NP}$
+2. $\text{BIP} \in \textbf{NP-hard}$, we can define a polynomial reduction $\text{EXACT-3-SAT} \leq_p \text{BIP}$
+
+Also the more general version of the problem $\text{IP} = \{(A,\bar{b})|A \in \mathbb{Z}^{m \times n}, \bar{b} \in \mathbb{Z}^m\} \notag \in \textbf{NP-complete}$
+
+*** Vertex coloring
+
+Given an undirected graph $G=(V,E)$ and $k \in \mathbb{Z}$, a function $\text{k-coloring}: V \rightarrow \{1,2,\dots,k\}$ assigns a color to each node so that $f(u) \neq f(v), \forall \{u,v\} \in E$.
+
+\begin{equation}
+\text{VCOL} = \{(G,k)|G \text{ is an undirected graph admitting a k-coloring}\} \notag
+\end{equation}
+
+$\text{VCOL} \in \textbf{NP-complete}$ since
+1. $\text{VCOL} \in \textbf{NP}$
+2. $\text{VCOL} \in \textbf{NP-hard}$, we can define a polynomial reduction $\text{EXACT-3-SAT} \leq_p \text{VCOL}$
+
+Also the more specific version of the problem $\text{3-VCOL} = \{(G,k)|G \text{ is an undirected graph admitting a 3-coloring}\}$
+** $\mathbf{coNP}$
+
+Similarly to the $RE$ languages case, the complement of languages in
+$\mathbf{NP}$ present an asymmetric behaviour. Considering a NTM
+- Accepting requires /at least/ one accepting path
+- Rejecting requires /all paths/ to be rejecting
+
+We define the complexity class containing the complements of $\mathbf{NP}$ languages as $\mathbf{coNP} = \{L|\bar{L} \in \mathbf{NP}\}$: note that this is not $L|L \notin \mathbf{NP}$, so $\exists L \in \mathbf{NP} \cap \mathbf{coNP}$. While we still don't know if $\mathbf{NP} = \mathbf{coNP}$, some theorems can help us  to tackle this question
+- $\mathbf{NP} = \mathbf{coNP} \iff \exists L \in \mathbf{NP-complete} \cap \mathbf{coNP}$
+- $\mathbf{P} \subseteq \mathbf{NP} \cap \mathbf{coNP}$
+- $\mathbf{P} = \mathbf{NP} \Rightarrow \mathbf{NP} = \mathbf{coNP}$
+
+*** Factor
+
+\begin{equation}
+\text{FACTOR}=\{(N,K)|N \in \mathbb {N} \text{ with at least a prime factor } M \leq k\} \notag
+\end{equation}
+
+This is an example of problem in a "/limbo/" between $\mathbf{P}$ and $\mathbf{NP-complete}$, in fact $\text{FACTOR} \in \mathbf{NP} \cap \mathbf{coNP}$. We don't know if $\text{FACTOR} \notin \mathbf{P}$, but the current cryptography field is based on this belief: finding a key of a channel is equivalent to factorize a very large $N$.
+** $\textbf{EXP}$ and $\textbf{NEXP}$
+
+Considering the languages that can be decided in exponential time, we have the following complexity classes
+- Exponential time $\textbf{P} = \bigcup_{c\geq 1} \text{DTIME}(2^{n^c})$, solvable by a deterministic Turing machine
+- Nondeterministic exponential time $\textbf{NP} = \bigcup_{c\geq 1} \text{NTIME}(2^{n^c})$, solvable by a non-deterministic Turing machine
+** $\text{DSPACE}$ and $\text{NSPACE}$
+
+We now consider a two-tapes Turing machine with a read-only /input tape/ and a read-write /working tape/, with no need to output anything. The space required by such machine is denoted as $S_M(n)$, the maximum number of cells visited on the working tape for an input of lenght $n$. In the non-deterministic case we must consider all the computation paths.
+
+Let $f: \mathbb{N} \rightarrow \mathbb{N}$, we have
+- $\text{DSPACE}(f(n))=\{L|\exists T_M \text{ deciding } L, S_M(n) \in O(f(n))\}$, solvable by a non-deterministic Turing machine using space in the order of $f(n)$.
+- $\text{NSPACE}(f(n))=\{L|\exists NT_M \text{ deciding } L, S_M(n) \in O(f(n))\}$, solvable by a non-deterministic Turing machine using space in the order of $f(n)$.
+** $\textbf{LOGSPACE}$ and $\textbf{NL}$
+
+Considering only the languages that can be decided with a logarithmic amount of space, we have the following complexity classes
+- Logspace $\textbf{LOGSPACE} = \text{DSPACE}(\log n)$, solvable by a deterministic Turing machine
+- Nondeterministic logspace $\textbf{NL} = \text{NSPACE}(\log n)$, solvable by a non-deterministic Turing machine
+
+For sure $\textbf{LOGSPACE} \subseteq \textbf{NL}$, but is $\textbf{LOGSPACE}=\textbf{NL}$? This is still an open question
+- $L_1 \leq_L L_2$ is a logspace reduction
+- A language $L\in \textbf{NL-complete} \iff L \in \textbf{NL} \wedge L' \leq_L L, \forall L'\in \textbf{NL}$.
+- We know that $\textbf{LOGSPACE} = \textbf{NL} \iff \exists L | L \in \textbf{LOGSPACE} \wedge L \in \textbf{NL-complete}$.
+
+*** $L_{01} \in \mathbf{LOGSPACE}$ 
+
+\begin{equation}
+L_{01} = \{ 0^n1^n | n \geq 0\} \notag
+\end{equation}
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\KwData{Input string $w$}
+\KwResult{$Y$ if $w=0^n1^n$, $N$ otherwise}
+ \If{w=\{\}}{
+  \Return $Y$\;
+ }
+ $zero\_counter=0$\;
+ \While{$input\_cell$ is 0}{
+  $zero\_counter=zero\_counter + 1$\;
+  read next $input\_cell$\;
+ }
+ $one\_counter=0$\;
+ \While{$input\_cell$ is 1}{
+  $one\_counter=one\_counter + 1$\;
+  read next $input\_cell$\;
+ }
+ \eIf{$input\_cell=\_$ and $zero\_counter=one\_counter$}{
+  \Return $Y$\;
+ }{
+  \Return $N$\;
+ }
+ \tcp{Only two counters are used, each at most $n=|w|$, encoded in binary so $O(\log_2 n)$}
+ \caption{Turing machine for $L_{01}$, $S_M(n) \in O(\log_2 n) \Rightarrow L_{01} \in \mathbf{LOGSPACE}$}
+\end{algorithm}
+
+*** $\text{REACHABILITY} \in \mathbf{NL-complete}$
+
+\begin{equation}
+\text{REACHABILITY} = \{(G,s,t)|\text{ directed graph } G \text{ has a path from } s \text{ to } t\} \notag
+\end{equation}
+
+Note that we can store into the working tape a pointer with the position of the input string in the input tape: this pointer would take only $O(\log_2 |w|)$ cells instead of holding the entire string in $O(|w|)$.
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\KwData{Directed graph $G=(V,E)$ and nodes $s,t$}
+\KwResult{$Y$ if there is a path from $s$ to $t$, $N$ otherwise}
+ $p$ points to $s$, store $p$ in the working tape\;
+ $counter=1$, store $counter$ in the working tape\;
+ \#LABEL\;
+ \If{$p$ points to $t$}{
+  \Return $Y$\;
+ }
+ Guess a point $v$ in $G$, $p'$ points to $v$\;
+ \If{$p$ points to a node with no edge to the node pointed by $p'$}{
+  \Return $N$\;
+ }
+ $p=p'$\;
+ $counter=counter+1$\;
+ \eIf{counter \leq |V|}{
+  \textbf{goto} \#LABEL\;
+ }{
+  \Return $N$\;
+ }
+ \caption{Algorithm for $\text{REACHABILITY} \in \mathbf{NL}$}
+\end{algorithm}
+
+Furthermore, $\text{REACHABILITY} \in \textbf{NL-complete}$.
+** Savitch's Theorem
+
+\begin{equation}
+\text{NSPACE}(f(n)) \subseteq \text{DSPACE}(f^2(n)) \quad \forall n \in \mathbb{N}, \forall f:\mathbb{N} \rightarrow \mathbb{N}| f(n) \geq \log n \notag
+\end{equation}
+
+When considering space, there is in fact not much difference between deterministic and non-deterministic Turing machines: unlike time, space can be reused.
+
+*** $\mathbf{PSPACE}$ and $\mathbf{NPSPACE}$
+
+\begin{equation}
+\mathbf{PSPACE}=\bigcup_{c \geq 1} \text{DSPACE}(n^c),\quad  \mathbf{NSPACE}=\bigcup_{c \geq 1} \text{DSPACE}(n^c) \notag
+\end{equation}
+
+From the Savitch's theorem, the following corollary over (at least) polynomial space follows
+
+\begin{equation}
+\mathbf{PSPACE} = \mathbf{NPSPACE} \notag
+\end{equation}
+
+*** $\text{REACHABILITY} \in \text{DSPACE}((\log_2 n)^2)$
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\KwData{Directed graph $G=(V,E)$, nodes $s,t$ and an integer $k$}
+\KwResult{$Y$ if there is a path from $s$ to $t$ requiring at most $k$ steps, $N$ otherwise}
+ \tcp{Does $s$ reach $t$ in zero steps?}
+ \If{$k=0$}{
+  \eIf{$s=t$}{
+   \Return $Y$\;
+  }{
+   \Return $N$\;
+  }
+ }
+
+ \tcp{Does $s$ reach $t$ in at most one step?}
+ \If{k=1}{
+  \eIf{$s=t$ or $(s,t) \in E$}{
+   \Return $Y$\;
+  }{
+   \Return $N$\;
+  }
+ }
+
+ \tcp{Look for a middle node}
+ \ForEach{$u \in V$}{
+  \eIf{$\text{exists-path}(G,s,u,\left\lfloor k/2 \right\rfloor)$ and $\text{exists-path}(G,s,u,\left\lceil k/2 \right\rceil)$}{
+   \Return $Y$\;
+  }{
+   \Return $N$\;
+  }
+ }
+ \Return $N$\;
+ \caption{\text{exists-path}}
+\end{algorithm}
+** Overview on time and space complexity classes
+
+Considering space classes, we have $\mathbf{LOGSPACE} \subseteq \mathbf{NL} \subseteq \mathbf{PSPACE} = \mathbf{NPSPACE}$, and their relationship with time classes is as follows
+- $\mathbf{LOGSPACE}\math \subseteq \mathbf{P}, \quad \mathbf{NL} \subseteq \mathbf{P}$
+- $\mathbf{NP} \subseteq \mathbf{PSPACE}, \quad \mathbf{coNP} \subseteq \mathbf{PSPACE}$
+- $\mathbf{PSPACE} \subseteq \mathbf{EXP}$
+** Turing Machines with Oracles
+
+\begin{equation}
+\text{MIN-COVER}=\{(G,k)|\text{ undirected graph } G, \text{ the smallest vertex cover } VC \text{ is } |VC|=k\} \notag
+\end{equation}
+
+Our procedure should both verify that there is a vertex cover of size at most $k$ ($\text{VCOVER} \in \textbf{NP}$) and no vertex cover of size $k-1$ ($\overline{\text{VCOVER}} \in \textbf{coNP}$): we believe that $\textbf{NP} \neq \textbf{coNP}$, so unlikely this can be done in $\textbf{NP}$. We can rephrase the problem as
+
+\begin{equation}
+\text{MIN-COVER}=\{(G,k)|(G,k) \in \text{VCOVER} \wedge (G,k-1) \notin \text{VCOVER}\} \notag
+\end{equation}
+
+Given a procedure $\text{check-cover}$ deciding $\text{VCOVER}$, we can call it as a sub-routine (an /oracle/). We only need a polynomial number of steps to decide $\text{MIN-cover}$, but the most difficult part done by the oracle.
+
+A Turing machine with an /oracle/ for $L$ has an additional read/write tape, oracle tape, and three more states $q_?, q_{yes}, q_{not}$. To check if $w \in L$, write $w$ in the oracle tape and move to $q_?$: if the next state is $q_{yes}$, then $w \in L$.
+
+Using oracles we can define different complexity classes. Le $C$ be some complexity class
+- $\textbf{P}^C=\{L\L \text{ can be decided by a polynomial time } DTM \text{ with an oracle for some language } L' \in C\}$
+- $\textbf{NP}^C=\{L\L \text{ can be decided by a polynomial time } NTM \text{ with an oracle for some language } L' \in C\}$
+
+For example, $\text{MIN-VCOVER} \in \texbf{P}^\textbf{NP}$. Note that $\textbf{NP} \subseteq \textbf{P}^\textbf{NP}$ and $\textbf{coNP} \subseteq \textbf{P}^\textbf{NP}$. Using oracles we can also define a /polynomial time heriarchy/, wich is an infinite hiearchy of complexity classes.
+** Search problems with decision version
+
+\begin{equation}
+\text{FMIN-VCOVER}=\min\{|VC|| VC\text{ is a vertex cover of }G\}\notag
+\end{equation}
+
+\begin{algorithm}[H]
+\SetAlgoLined
+ $k = |V| - 1$\;
+ \While{(G,k) \in \text{VCOVER}}{
+  k = k -1
+ }
+ write $k$ in the output tape
+\end{algorithm}
+
+Let $\mathbf{FP}$ be the class of search problems that can be solved by a Turing machine with output tape in polynomial time, then $\text{FMIN-VCOVER} \in \textbf{FP}^\textbf{NP}$. We can actually improve the previous algorithm by employing binary search and reducing the number of steps from $O(|V|)$ to $O(\log_2 |V|)$, so $\text{FMIN-VCOVER} \in \textbf{FP}^{\textbf{NP} \left[ \log_2 n \right]}$.
+** The Travelling Salesman Problem
+
+We define the /Functional Travelling Salesman Problem/ (FTSP) as, given a weighted undirected graph, finding the minimum cost of an Hamilton cycle (if it exists).
+
+\begin{equation}
+\text{TSP} = \{(G,K)|\text{ weighted, undirected graph } G \text{ with an Hamilton cycle costing at most } k\} \notag
+\end{equation}
+
+\begin{algorithm}[H]
+\SetAlgoLined
+ \tcp{$m$ bits to encode each cost + $|E|$ bits to encode each edge $\rightarrow k \in O(2^{m+|E|})$}
+ $k$ is the sum of the cost of all edges in $G$\;
+ \If{(G,k) \notin \text{TSP}}{
+  write $\bot$ in the output tape and halt\;
+ }
+ \While{(G,k) \in \text{TSP}}{
+  $k=k-1$\;
+ }
+ write $k+1$ in the output tape\;
+\end{algorithm}
+
+A better algorithm relies again on binary search, resulting in $\text{FTSP} \in \textbf{FP}^{\textbf{NP}}$.
+
+\begin{algorithm}[H]
+\SetAlgoLined
+ $a = 0$\;
+ \tcp{$m$ bits to encode each cost + $|E|$ bits to encode each edge $\rightarrow b \in O(2^{m+|E|})$}
+ $b$ is the sum of the cost of all edges in $G$\;
+ \tcp{ binary search, so number of iterations $\in O(\log_2 2^{m+|E|})=O(m+|E|)$}
+ \While{a \leq b}{
+  $k = \left\lfloor (a+b)/2 \right\rfloor$\;
+  \eIf{$(G,k-1) \in \text{TSP}$}{
+   \tcp{Cost is striclty smaller than middle point, move interval to the left}
+   $b = k-1$\;
+  }{
+   \eIf{(G,k) \in \text{TSP}}{
+    \tcp{$k$ is the minimum cost}
+    write $k$ in the output tape and halt\;
+   }{
+    \tcp{Cost is striclty larger than middle point, move interval to the right}
+    $a = k+1$\;
+   }
+  }
+ }
+ write $\bot$ in the output tape\;
+\end{algorithm}
+
+Finally, since $\text{TSP} \in \textbf{NP-complete}$ also the specific $\text{FTSP} \in \textbf{NP-complete}$.
 * Exam discussion 09/02/2021
 ** Computability part
 *** Describe the language
