@@ -499,10 +499,10 @@ From $q_1$ we go to $q_{accept}$ if the input string is empty, otherwise move to
 In $q_2$ we always read a symbol $\alpha$ in tape $1$ and move to the right, then we either
 - Copy $\alpha$ to tape $2$, move right and stay in $q_2$
 - Copy $\alpha$ to tape $3$, move right and move to $q_3$
-Note this is a nondeterministic behaviour.
+Note that this is a nondeterministic behaviour.
 
 In $q_3$ we either
-- Keep copying $\alpha$ in tape $3$, moving right and stay in $q_3$
+- Keep copying $\alpha$ in tape $3$, moving right and staying in $q_3$
 - Copy $\alpha$ to tape $2$, move right in tape $2$, move left in tape $3$ and move to $q_4$
 Also here we have a nondeterministic behaviour.
 
@@ -513,7 +513,7 @@ When we reach $q_5$, the heads of tape $2$ and $3$ are at the end of the respect
 Finally, the arch from $q_3$ to $q_5$ represents the case where we have read all the string in tape $1$ and skip to the checks made by $q_5$.
 
 To undestand the overall behaviour we explore the possible paths to reach $q_{accept}$
-- From $q_1$ to $q_{accept}$, so the empty string ~_~ is part of the language
+- From $q_1$ to $q_{accept}$, so the empty string =-= is part of the language
 - $q_1 \rightarrow q_2 \rightarrow q_3 \rightarrow q_5 \rightarrow q_{accept}$
   - $q_2$ copies from tape $1$ to tape $2$, let's call the resulting string in tape $2$ $w_1$
   - $q_3$ copies the part following $w_1$ to tape $3$, let's call it $w_2$
@@ -532,7 +532,7 @@ We then conclude that the language decided by the machine is $L=\{w_1w_2w_3|w_1,
 
 *** Deterministic or nondeterministic?
 
-We are dealing with a nondeterministic Turing machine: fore example we have a nondeterministic behaviour between $q_2$ and $q_3$, where with input $(q_2,\alpha,\_,\_)$ we can either stay in $q_2$ or move to $q_3$.
+We are dealing with a nondeterministic Turing machine: we have an example of nondeterministic behaviour between $q_2$ and $q_3$, where with input $(q_2,\alpha,\_,\_)$ we can either stay in $q_2$ or move to $q_3$.
 
 *** Running time
 
@@ -553,7 +553,7 @@ P = \{<M>| \text{ every string that }M\text{ accepts is not in }K\}\notag
 L=\{w_1w_2w_3|w_1,w_2,w_3 \in \{a,b,c\}^*,\quad w_2=w_1w_3\} \notag
 \end{equation}
 
-Remember that in general properties are languages that have as an input the encoding of a Turing machine, and for this reason we can deal with with them by suing specific theoretical tools (e.g. Rice theorem).
+Remember that in general properties are languages that have as an input the encoding of a Turing machine, and for this reason we can deal with with them by using specific theoretical tools (e.g. Rice theorem).
 
 Is $P$ non-trivial? So
 - Is $P \neq \emptyset$? :: Yes, we can describe a Turing machine that accepts only the string $ab$, and $ab \notin K$.
@@ -570,15 +570,11 @@ Finally, is
 - $P \in \mathbf{RE} \setminus  \mathbf{R}$? :: So $P \notin R$ (just proven) and $\exists M$ that accepts $P$
 - $P \notin \mathbf{RE}$? :: So $\nexists M$ that accepts $P$
 So $\exists M$ that accepts $P$?
-- We may try to build a machine that, for each string accepted by a given TM, answers ~Yes~ if none of them is in $K$. However, this is impossible: the language accepted by the TM may be infinite and $M$ may never halt.
-- We can build a machine that answers ~No~ instead: if $\exists w \in K$, at some time $M$ will halt and answer ~No~.
-We have proven that $\exists M$ that accepts $\bar{P}$, so $\bar{P} \in \mathbf{RE}$. Note that
+- We may try to build a machine that, for each string accepted by a given TM, answers =Yes= if none of them is in $K$. However, this is impossible: the language accepted by the TM may be infinite and $M$ may never halt.
+- We can build a machine that answers =No= instead: if $\exists w \in K$, at some time $M$ will halt and answer =No=.
+We have proven that $\exists M$ that accepts $\bar{P}$, so $\bar{P} \in \mathbf{RE}$. 
 
-\begin{equation}
-P,\bar{P} \in \mathbf{RE} \Rightarrow P,\bar{P} \in \mathbf{R} \notag
-\end{equation}
-
-But we have proven both that $P \notin \mathbf{R}$ and $\bar{P} \in \mathbf{RE}$, so we must conclude that $P \notin \mathbf{RE}$.
+Note that $P,\bar{P} \in \mathbf{RE} \Rightarrow P,\bar{P} \in \mathbf{R}$. But we have proven both that $P \notin \mathbf{R}$ and $\bar{P} \in \mathbf{RE}$, so we must conclude that $P \notin \mathbf{RE}$.
 
 ** Complexity part
 *** $\text{COMPUTERS}$ problem
@@ -594,7 +590,7 @@ Given the set of computers $C$, the set of pages $P$, an integer $k$, and for ea
 #+END_QUOTE
 
 We can prove that this language $L$ is in $\mathbf{NP}$ by providing a "guess and check" algorithm, that means provide an algorithm that
-1. Guesses a candidate solution for the problem: in this case, a set of computers
+1. Guesses a candidate solution for the problem: in this case, a set of computers.
 2. Verifies that the candidate is a solution: in this case, a set of computers with $k$ computers s.t. no page is shared between any of its elements.
 
 \begin{algorithm}[H]
@@ -632,15 +628,7 @@ The algorithm is in $\textbf{NP}$ if it runs in polynomial time, Let's check eac
    This is done in $O(n^2 m^2)$
 Overall, we have $O(n+n+n^2 m^2)$. So $\text{COMPUTERS} \in \textbf{NP}$.
 
-To prove $\text{COMPUTERS}$ is $\textbf{NP-hard}$, we need to provide a reduction $L \leq_p \text{COMPUTERS}$ s.t. $L \in \textbf{NP-hard}$. Such reduction should convert an input for $L$ into an input for $\text{COMPUTER}$, in polynomial time.
-
-For example, we can choose $L$ to be Independent Set, $\text{IS}$. Remember that
-
-\begin{equation}
-\text{IS}=\{ (G,k') |G \text{ undirected graph}, \exists S \text{ independent set s.t.} |T| \ge k'\} \notag
-\end{equation}
-
-And $T$ is an independent set in $G=(V,E)$ if and only if there is no edge connecting any pair of nodes in $T$.
+To prove $\text{COMPUTERS}$ is $\textbf{NP-hard}$, we need to provide a reduction $L \leq_p \text{COMPUTERS}$ s.t. $L \in \textbf{NP-hard}$. Such reduction should convert an input for $L$ into an input for $\text{COMPUTER}$, in polynomial time. For example, we can choose $L$ to be Independent Set, $\text{IS}$. Remember that $\text{IS}=\{ (G,k') |G \text{ undirected graph}, \exists S \text{ independent set s.t.} |T| \ge k'\}$ and $T$ is an independent set in $G=(V,E)$ if and only if there is no edge connecting any pair of nodes in $T$.
 
 Back to the reduction, we can translate
 - Each node $v \in V$ of the graph to a computer $c \in C$
