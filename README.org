@@ -7,26 +7,17 @@ Collection of notes and code about the Computability and Computational Complexit
 
 From now on we will focus our attention on the class of decidable problems $R=\{L|\exists \text{ Turing machine } M \text{ that decides } L \}$. Considering the languages that can be decided in $O(f(n)), f: \mathbb{N} \rightarrow \mathbb{N}$, we have
 - $\text{DTIME}(f(n))=\{L|L\in R, T_M(n)\in O(f(n))\}$, solvable by a deterministic TM.
-- $\text{NTIME}(f(n))=\{L|L\in R, NT_M(n)\in O(f(n))\}$, solvable by a non-deterministic TM.
+- $\text{NTIME}(f(n))=\{L|L\in R, NT_M(n)\in O(f(n))\}$, solvable by a nondeterministic TM.
 
 Considering only the languages that can be decided in polynomial time, we have the following complexity classes
 - $\textbf{P} = \bigcup_{c\geq 1} \text{DTIME}(n^c)$, problems solvable by a deterministic TM in polynomial time.
-- $\textbf{NP} = \bigcup_{c\geq 1} \text{NTIME}(n^c)$, problems solvable by a non-deterministic TM in polynomial time.
+- $\textbf{NP} = \bigcup_{c\geq 1} \text{NTIME}(n^c)$, problems solvable by a nondeterministic TM in polynomial time.
 
-The class of Polynomial Certificates $\mathbf{PC}$ collects all the languages s.t.
+Nondeterministic TMs are often devised using a /trail and error/ (or guess and check) approach, where the resulting computation takes the form of a decision tree model.  To check if $w \in L$, the NTM should
+1. Guess a /certificate/ (some data) on the tape, in polynomial time.
+2. Check the certificate to proove $w \in L$, in polynomial time.
 
-\begin{equation}
-\text{ input } w \in \mathbf{PC} \notag \iff \exists \text{ certificate } u \text{ that proves } w \in L \text{ in polynomial time}
-\end{equation}
-
-Since $\mathbf{PC}=\mathbf{NP}$ this is also an alternative definition of the latter.
-
-For sure $P \subseteq NP$, but is $P=NP$? This is still an open question
-- A language $L\in \textbf{NP-hard} \iff L' \leq_p L, \forall L'\in \textbf{NP}$. Also note that if $L\in \textbf{NP-hard}\wedge L \leq_p L' \Rightarrow L' \in \textbf{NP-hard}$.
-- $\textbf{NP-complete}\subseteq \textbf{NP}$ contains the hardest problems in $\texfbf{NP}$: a language $L\in\textbf{NP-complete}\iff L\in\textbf{NP} \wedge L\in\textbf{NP-hard}$.
-- We know that $\textbf{P} = \textbf{NP} \iff \exists L | L \in P \wedge L \in \textbf{NP-complete}$.
-
-This pattern can implemented efficiently using a non-deterministic Turing machine that guesses a /certificate/ for an input $w$.
+The class $\mathbf{PC}$ collects the languages that can be decided with such NTMs, and it is in fact an alternative definition of $\mathbf{NP}$ since $\mathbf{PC}=\mathbf{NP}$.
 
 ** $\textbf{P}$ languages
 *** Reachability
@@ -93,16 +84,13 @@ A language $L$ is said to be $\mathbf{NP-complete}$ if and only by providing a p
 
 So to prove a language $L$ is $\mathbf{NP-complete}$ it is enough to show that
 1. $L \in \mathbf{NP}$.
-2. $L \leq_p L'$, where $L' \in \mathbf{NP-hard}$ (e.g. $\text{SAT}$).
+2. $L \leq_p L'$, where $L' \in \mathbf{NP-hard}$.
 
 *** SAT
 
-A CNF (/Conjunctive Normal Form/) is a boolean formula of the form
+A CNF (/Conjunctive Normal Form/) is a boolean formula of the form $C_1 \wedge C_2 \wedge \cdots \wedge C_n$, with clauses $C_i=(l_1 \vee l_2 \vee \cdots \vee l_k)$ and literals $l_j$. A CNF is satisfiable if there is a truth assignment $\tau$ that makes $\varphi$ true.
 
-\begin{equation}
-C_1 \wedge C_2 \wedge \cdots \wedge C_n,\quad \text{ with clauses } C_i=(l_1 \vee l_2 \vee \cdots \vee l_k) \text{ having literals } l_j\notag
-\end{equation}
-e.g. For $\varphi=(x_1 \vee x_2 \vee x_2 \vee \bar{x}_3) \wedge (x_4 \vee \bar{x}_5) \wedge (x_1 \vee \bar{x}_5)$ a truth assignment that satisfies $\varphi$ is $\tau: x_1\rightarrow 1, x_2,x_3,x_4,x_5 \rightarrow 0$.
+Example: For $\varphi=(x_1 \vee x_2 \vee x_2 \vee \bar{x}_3) \wedge (x_4 \vee \bar{x}_5) \wedge (x_1 \vee \bar{x}_5)$ a truth assignment that satisfies $\varphi$ is $\tau: x_1\rightarrow 1, x_2,x_3,x_4,x_5 \rightarrow 0$.
 
 Consider the decision problem $\text{SAT}=\{\varphi|\varphi \text{ is a satisfiable CNF}\}$. Given a CNF $\varphi$ and a truth assignment $\tau$, we can provide an algorithm that checks if $\tau$ satisfies $\varphi$ in polynomial time.
 
@@ -135,6 +123,10 @@ Can we get a better result by relying on non-determinism? We can use a /trial an
 2. Verifies in polynomial time that $\tau$ satisfies $\varphi$, if so accept (otherwise reject).
 
 By providing a NTM that decides $\text{SAT}$, we proved that $\text{SAT} \in \mathbf{NP}$. 
+
+As already said, Cook's theorem states that $SAT \in \mathbf{NP-complete}$, but even simplified versions are still in $\mathbf{NP-complete}$.
+- $\text{3-SAT}=\{\varphi | \varphi \text{ is a boolean formula in 3-CNF that is satisfiable}\}$, where 3-CNF is a CNF whose clauses have at most three literals.
+- $\text{EXACT-3-SAT}=\{\varphi | \varphi \text{ is a boolean formula in EXACT-3-CNF that is satisfiable}\}$, where EXACT-3-CNF  is a CNF whose clauses have exactly three literals.
 
 *** Independent set
 
