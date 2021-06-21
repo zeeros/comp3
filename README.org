@@ -3,28 +3,15 @@
 Collection of notes and code about the Computability and Computational Complexity course, part of the Master in Computer Science at the Università di Trento (UNITN).
 
 * Computational Complexity
-** $\text{DTIME}$ and $\text{NTIME}$
+** $\text{DTIME}$ and $\text{NTIME}$, $\textbf{P}$ and $\textbf{NP}$
 
-From now on we focus our attention on the class of problems    \begin{equation}
-R=\{L|\exists \text{ Turing machine } M \text{ that decides } L \} \notag
-\end{equation}. Considering the languages that can be decided in $O(f(n)), f: \mathbb{N} \rightarrow \mathbb{N}$, we have
-- $\text{DTIME}(f(n))=\{L|L\in R, T_M(n)\in O(f(n))\}$, solvable by a non-deterministic Turing machine.
-- $\text{NTIME}(f(n))=\{L|L\in R, NT_M(n)\in O(f(n))\}$, solvable by a non-deterministic Turing machine.
-  
-** $\textbf{P}$ and $\textbf{NP}$
+From now on we will focus our attention on the class of decidable problems $R=\{L|\exists \text{ Turing machine } M \text{ that decides } L \}$. Considering the languages that can be decided in $O(f(n)), f: \mathbb{N} \rightarrow \mathbb{N}$, we have
+- $\text{DTIME}(f(n))=\{L|L\in R, T_M(n)\in O(f(n))\}$, solvable by a deterministic TM.
+- $\text{NTIME}(f(n))=\{L|L\in R, NT_M(n)\in O(f(n))\}$, solvable by a non-deterministic TM.
 
 Considering only the languages that can be decided in polynomial time, we have the following complexity classes
-- Polynomial time $\textbf{P} = \bigcup_{c\geq 1} \text{DTIME}(n^c)$, solvable by a deterministic Turing machine
-- Nondeterministic polynomial time $\textbf{NP} = \bigcup_{c\geq 1} \text{NTIME}(n^c)$, solvable by a non-deterministic Turing machine
-
-Lets consider a language $L \notin P, L \in NP$, $L$ is a problem such that each candidate solution
-1. Is /small/, having polynomial size w.r.t the input
-2. Takes polynomial time to be verified
-
-This pattern can implemented efficiently using a non-deterministic
-Turing machine where
-1. Each path of the computation tree is of polynomial lenght
-2. The written result of each path can be verified in polynomial number of steps
+- $\textbf{P} = \bigcup_{c\geq 1} \text{DTIME}(n^c)$, problems solvable by a deterministic TM in polynomial time.
+- $\textbf{NP} = \bigcup_{c\geq 1} \text{NTIME}(n^c)$, problems solvable by a non-deterministic TM in polynomial time.
 
 The class of Polynomial Certificates $\mathbf{PC}$ collects all the languages s.t.
 
@@ -40,8 +27,8 @@ For sure $P \subseteq NP$, but is $P=NP$? This is still an open question
 - We know that $\textbf{P} = \textbf{NP} \iff \exists L | L \in P \wedge L \in \textbf{NP-complete}$.
 
 This pattern can implemented efficiently using a non-deterministic Turing machine that guesses a /certificate/ for an input $w$.
-** $\textbf{P}$ languages
 
+** $\textbf{P}$ languages
 *** Reachability
 
 \begin{equation}
@@ -74,6 +61,8 @@ This pattern can implemented efficiently using a non-deterministic Turing machin
 
 *** Prime
 
+The algorithm below is not polynomial in the /size of the input/: since the input has been encoded in binary, we use $n=\left\lceil \log_2 N \right\rceil$ bits to encode $N$. This means that $N \in O(2^n)$ and the algorithm is exponential w.r.t to the input size. In the early 2000s a far more complex algorithm has been designed to prove that $\text{PRIME} \in \mathbf{P}$.
+
 \begin{equation}
 \text{PRIME}=\{<N>|N\text{ is prime}\},\quad <N>\text{ binary encoding of }N \in \mathbb{N} \notag
 \end{equation}
@@ -92,29 +81,35 @@ This pattern can implemented efficiently using a non-deterministic Turing machin
  \caption{Naive iteration, in $O(N)$}
 \end{algorithm}
 
-However, this algorithm is not polynomial in the /size/ of the input: since the input has been encoded in binary, we use $n=\left\lceil \log_2 N \right\rceil$ bits to encode $N$. This means that $N \in O(2^n)$ and the algorithm is exponential w.r.t to the input size.
-** $\textbf{NP-complete}$ languages
+** $\mathbf{NP-complete}$ languages
 
-*** SAT and Cook's Theorem
+A language $L$ is said to be $\mathbf{NP-complete}$ if and only by providing a polynomial-time algorithm to decide $L$ one proves that every language in $\mathbf{NP}$ can be decided in polynomial time.  For the study of  $\mathbf{NP-completeness}$ we need to introduce some useful concepts. 
+- Language $L_1$ reduces to language $L_2$ in polynomial time ($L_1 \leq_p L_2$) if there is a /polynomial-time reduction/ $M$ such that $T_M(n) \in O(n^c), \ c>0$.
+- A language $L$ is $\mathbf{NP-hard}$ if $L' \leq_p L \ \forall L' \in \mathbf{NP}$.
+- $L \in \mathbf{NP-complete} \Rightarrow L \in \mathbf{NP} \wedge L \in \mathbf{NP-hard}$.
+- $L \in \mathbf{NP-complete} \wedge L \in \mathbf{P} \iff \mathbf{P} = \mathbf{NP}$. In other words, deciding an $\mathbf{NP-complete}$ problem in polynomial time proves that $\mathbf{P} = \mathbf{NP}$.
+- $L_1 \in \mathbf{NP-hard} \wedge L_1 \leq_p L_2 \Rightarrow L_2 \in \mathbf{NP-hard}$.
+- Cook's theorem states that $\text{SAT} \in \mathbf{NP-complete}$.
+
+So to prove a language $L$ is $\mathbf{NP-complete}$ it is enough to show that
+1. $L \in \mathbf{NP}$.
+2. $L \leq_p L'$, where $L' \in \mathbf{NP-hard}$ (e.g. $\text{SAT}$).
+
+*** SAT
 
 A CNF (/Conjunctive Normal Form/) is a boolean formula of the form
 
 \begin{equation}
 C_1 \wedge C_2 \wedge \cdots \wedge C_n,\quad \text{ with clauses } C_i=(l_1 \vee l_2 \vee \cdots \vee l_k) \text{ having literals } l_j\notag
 \end{equation}
+e.g. For $\varphi=(x_1 \vee x_2 \vee x_2 \vee \bar{x}_3) \wedge (x_4 \vee \bar{x}_5) \wedge (x_1 \vee \bar{x}_5)$ a truth assignment that satisfies $\varphi$ is $\tau: x_1\rightarrow 1, x_2,x_3,x_4,x_5 \rightarrow 0$.
 
-\begin{equation}
-\varphi=(x_1 \vee x_2 \vee x_2 \vee \bar{x}_3) \wedge (x_4 \vee \bar{x}_5) \wedge (x_1 \vee \bar{x}_5) \notag
-\end{equation}
-
-\begin{equation}
-\text{SAT}=\{\varphi|\varphi \text{ is a satisfiable CNF}\} \notag
-\end{equation}
+Consider the decision problem $\text{SAT}=\{\varphi|\varphi \text{ is a satisfiable CNF}\}$. Given a CNF $\varphi$ and a truth assignment $\tau$, we can provide an algorithm that checks if $\tau$ satisfies $\varphi$ in polynomial time.
 
 \begin{algorithm}[H]
 \SetAlgoLined
-\KwData{A CNF boolean formula $\varphi$}
-\KwResult{$Y$ if $\varphi$ is a satisfiable CNF, $N$ otherwise}
+\KwData{A CNF boolean formula $\varphi$ and a truth assignment $\tau$}
+\KwResult{$Y$ if $\tau$ satisfies $\varphi$ $N$ otherwise}
  \tcp{At most $m$ iterations, checking all the clauses}
  \ForAll{$C_i$ of $\varphi$}{
   $cvalue = False$\;
@@ -130,18 +125,21 @@ C_1 \wedge C_2 \wedge \cdots \wedge C_n,\quad \text{ with clauses } C_i=(l_1 \ve
   }
  }
  \Return $Y$\;
- \caption{Naive iterations, in $O(2^n)$ with $n$ clauses}
+ \caption{Naive iterations for $\tau$, in $O(m \cdot n)$ with $m$ clauses and $c$ maximum number of literals in a clause}
 \end{algorithm}
 
-Cook's theorem states that $\text{SAT} \in \mathbf{NP-complete}$.
+However, a CNF with $n$ boolean variables has a total of $2^n$ possible truth assignment, making the overall procedure exponential in time. No polynomial procedure has been devised to date.
+
+Can we get a better result by relying on non-determinism? We can use a /trial and error/ approach with a NTM that, given a CNF $\varphi$ with variables $x_1, \cdots, x_n$
+1. Makes a non-deterministic guess $\tau$ for $x_1,\cdots , x_n$, written on the tape using $n$ bits (the i-th bit represents the assignment for $x_i$ ). Each guess takes a different path on the computational tree and writes polynomially many symbols in the tape.
+2. Verifies in polynomial time that $\tau$ satisfies $\varphi$, if so accept (otherwise reject).
+
+By providing a NTM that decides $\text{SAT}$, we proved that $\text{SAT} \in \mathbf{NP}$. 
 
 *** Independent set
 
-$S$ is an /independent set/ in $G=(V,E)$ if and only if there is no edge connecting any pair of nodes in $S$.
-
-\begin{equation}
-\text{IS}=\{ (G,K) |G \text{ undirected graph}, \exists S \text{ independent set s.t. |S|} \ge k\} \notag
-\end{equation}
+Given an undirected graph $G=(V,E)$, $S$ is an /independent set/ in $G$ if and only if there is no edge connecting any pair of nodes in $S$.
+We are interested in the decision problem $\text{IS}=\{ (G,K) |G \text{ undirected graph}, \exists S \text{ independent set s.t. |S|} \ge k\}$ is also $\textbf{NP-complete}$. While we can provide an algorithm that checks if $S$ is an independent set of $G$ in polynomial time, the total number of possible sets of nodes for a graph $G$ is  $\sum_{i=k}^{n} \binom{n}{i}$. Our procedure is not polynomial in time and no polynomial procedure has been devised to date.
 
 \begin{algorithm}[H]
 \SetAlgoLined
@@ -161,37 +159,41 @@ $S$ is an /independent set/ in $G=(V,E)$ if and only if there is no edge connect
  \caption{Naive iterations, in $O(n^2 \sum_{i=k}^n \frac{n!}{i!(n-i)!})$ with $n$ nodes}
 \end{algorithm}
 
-$\text{IS} \in \textbf{NP-complete}$ since
-1. $\text{IS} \in \textbf{NP}$
-2. $\text{IS} \in \textbf{NP-hard}$, we can define a polynomial reduction $\text{EXACT-3-SAT} \leq_p \text{IS}$
+Similarly to $\text{SAT}$, we can also devise a NTM that uses a trial and error strategy. Given an undirected graph $G$ with $n$ nodes and a number $k$
+1. For each node $v$ in $G$, non-deterministically decide to write or not $v$ in the tape.
+2. Accept if at least $k$ nodes have been written and no two of them are connected (otherwise reject).
+
+By providing a NTM that decides $\text{IS}$, we proved that $\text{IS} \in \mathbf{NP}$.  To proove that $\text{IS} \in \mathbf{NP-hard}$ (and $\mathbf{NP-complete}$) we can provide a polynomial-time reduction for  $\text{EXACT-3-SAT} \leq_p \text{IS}$.
 
 *** Vertex cover
 
-$VC$ is a /vertex cover/ in $G=(V,E)$ if and only if all the vertices of $G$ are touched by some node in $VC$.
+Given an undirected graph  $G=(V,E)$, $VC \subseteq V$ is a /vertex cover/ if and only if all the vertices of $G$ are touched by some node in $VC$. We set the decision problem $\text{VCOVER}=\{(G,k)|G \text{ undirected graph }, \exists VC \text{ vertex cover s.t. } |VC| \leq k\}$ and we want to prove $\text{VCOVER}\in \mathbf{NP-complete}$.
 
-\begin{equation}
-\text{VCOVER}=\{(G,k)|G \text{ undirected graph }, \exists VC \text{ vertex cover s.t. } |VC| \leq k\} \notag
-\end{equation}
+For this problem we can rely on one important observation: let  $G=(V,E)$ be an undirected graph and $S \subseteq V$ a set of nodes, then $S$ is an independent set in $G$ if and only if $V\setminus S$ is a vertex cover of $G$.
 
-Notice that $S$ is an independent set in $G$ if and only if $V\setminus S$ is a vertex cover of $G$.
+We first proove that $\text{VCOVER} \in \textbf{NP}$ by devising a NTM that
+- Makes a non-deterministic guess of at most $k$ nodes in its tape in polynomial time.
+- Verifies in polynomial time that all edges are covered.
 
-$\text{VCOVER} \in \textbf{NP-complete}$ since
-1. $\text{VCOVER} \in \textbf{NP}$
-2. $\text{VCOVER} \in \textbf{NP-hard}$, we can define a polynomial reduction $\text{IS} \leq_p \text{VCOVER}$
+To proove that $\text{VCOVER} \in \mathbf{NP-hard}$ we can define a polynomial reduction for $\text{IS} \leq_p \text{VCOVER}$. We must devise a reduction that converts a pair $(G,k)$ to a pair $(G',k')$: if $G$ has an independent set with at least $k$ nodes, then $G'$ has a vertex cover with at most $k'$ nodes (and vice versa). So the reduction constructs $G'=G$ and $k'=|V|-k$ in a way that
+- If $G$ has an independent set $S$ with $|S| \geq k$, then (for the previous observation) $V\setminus S$ is a vertex cover of $G$ (and thus of $G'$). And since $|S| \geq k$, then $|VC|=|V \setminus S | \leq |V|-k=k'$.
+- If $G'$ has a vertex cover $VC$ with $|VC|<k'$, then $S=V \setminus VC$ is an independent set of $G'$ (and thus of $G$). And since $|VC|<k'$, then $|S|=|v \setminus VC| \geq |V| - k' = k$.
+
+Then we have also proven that $\text{VCOVER} \in \mathbf{NP-complete}$.
 
 *** Clique
 
-$C$ is a /clique/ in $G=(V,E)$ if and only if the nodes in $C$ form a fully connected subgraph in $G$.
+Given an undirected graph $G=(V,E)$, $C \in V$ is a /clique/ if and only if the nodes in $C$ form a fully connected subgraph in $G$. We consider the decision problem $\text{CLIQUE}=\{(G,k)|G \text{ undirected graph }, \exists C \text{ clique s.t. } |VC| \geq k\}$.
 
-\begin{equation}
-\text{CLIQUE}=\{(G,k)|G \text{ undirected graph }, \exists C \text{ clique s.t. } |VC| \geq k\} \notag
-\end{equation}
+For this problem we can exploit the fact that an independent set $S$ in $G$ corresponds to a clique in a graph $\overline{G}$, with $\overline{G}$ being the complement of $G$ (any pair of nodes $G$ is adjacent iff it's not adjacent in $\overline{G}$).
 
-Let $G'$ have the same nodes as $G$ but "complementary" edges, then a independent set $S$ in $G$ is a clique $C$ in $G'$.
+We first proove that $\text{CLIQUE} \in \textbf{NP}$ by devising a NTM that
+- Makes a non-deterministic guess of at lest $k$ nodes in its tape in polynomial time.
+- Verifies in polynomial time that all pairs are connected.
 
-$\text{CLIQUE} \in \textbf{NP-complete}$ since
-1. $\text{CLIQUE} \in \textbf{NP}$
-2. $\text{CLIQUE} \in \textbf{NP-hard}$, we can define a polynomial reduction $\text{IS} \leq_p \text{CLIQUE}$
+To proove that $CLIQUE \in \mathbf{NP-hard}$ we can define a polynomial reduction for $IS \leq_p CLIQUE$. We must devise a reduction that converts a pair $(G,k)$ to a pair $(G',k')$: if $G$ has an independent set with at least $k$ nodes, then $G'$ has a clique with at least $k'$ nodes (and vice versa). So the reduction constructs $G'=\overline{G}$, by copying $|V|$ nodes and adding at most $|V|^2$, and $k'=k$ in a way that
+- If $G$ has an independent set $S$ with $|S| \geq k$, then (for the previous observation) $S$ is a clique of $G'$  with at least $k=k'$ nodes in $G'$.
+- If $G'$ has a clique $C$ with at least $k'$ nodes, then no distinct nodes in $G$ are connected in $G'$ and $C$ is an independent set with at least $k'=k$ nodes in $G$.
 
 *** Binary integer programming
 
@@ -220,6 +222,7 @@ $\text{VCOL} \in \textbf{NP-complete}$ since
 2. $\text{VCOL} \in \textbf{NP-hard}$, we can define a polynomial reduction $\text{EXACT-3-SAT} \leq_p \text{VCOL}$
 
 Also the more specific version of the problem $\text{3-VCOL} = \{(G,k)|G \text{ is an undirected graph admitting a 3-coloring}\}$
+
 ** $\mathbf{coNP}$
 
 Similarly to the $RE$ languages case, the complement of languages in
@@ -239,11 +242,13 @@ We define the complexity class containing the complements of $\mathbf{NP}$ langu
 \end{equation}
 
 This is an example of problem in a "/limbo/" between $\mathbf{P}$ and $\mathbf{NP-complete}$, in fact $\text{FACTOR} \in \mathbf{NP} \cap \mathbf{coNP}$. We don't know if $\text{FACTOR} \notin \mathbf{P}$, but the current cryptography field is based on this belief: finding a key of a channel is equivalent to factorize a very large $N$.
+
 ** $\textbf{EXP}$ and $\textbf{NEXP}$
 
 Considering the languages that can be decided in exponential time, we have the following complexity classes
 - Exponential time $\textbf{P} = \bigcup_{c\geq 1} \text{DTIME}(2^{n^c})$, solvable by a deterministic Turing machine
 - Nondeterministic exponential time $\textbf{NP} = \bigcup_{c\geq 1} \text{NTIME}(2^{n^c})$, solvable by a non-deterministic Turing machine
+
 ** $\text{DSPACE}$ and $\text{NSPACE}$
 
 We now consider a two-tapes Turing machine with a read-only /input tape/ and a read-write /working tape/, with no need to output anything. The space required by such machine is denoted as $S_M(n)$, the maximum number of cells visited on the working tape for an input of lenght $n$. In the non-deterministic case we must consider all the computation paths.
@@ -251,6 +256,7 @@ We now consider a two-tapes Turing machine with a read-only /input tape/ and a r
 Let $f: \mathbb{N} \rightarrow \mathbb{N}$, we have
 - $\text{DSPACE}(f(n))=\{L|\exists T_M \text{ deciding } L, S_M(n) \in O(f(n))\}$, solvable by a non-deterministic Turing machine using space in the order of $f(n)$.
 - $\text{NSPACE}(f(n))=\{L|\exists NT_M \text{ deciding } L, S_M(n) \in O(f(n))\}$, solvable by a non-deterministic Turing machine using space in the order of $f(n)$.
+
 ** $\textbf{LOGSPACE}$ and $\textbf{NL}$
 
 Considering only the languages that can be decided with a logarithmic amount of space, we have the following complexity classes
@@ -327,6 +333,7 @@ Note that we can store into the working tape a pointer with the position of the 
 \end{algorithm}
 
 Furthermore, $\text{REACHABILITY} \in \textbf{NL-complete}$.
+
 ** Savitch's Theorem
 
 \begin{equation}
@@ -382,12 +389,14 @@ From the Savitch's theorem, the following corollary over (at least) polynomial s
  \Return $N$\;
  \caption{\text{exists-path}}
 \end{algorithm}
+
 ** Overview on time and space complexity classes
 
 Considering space classes, we have $\mathbf{LOGSPACE} \subseteq \mathbf{NL} \subseteq \mathbf{PSPACE} = \mathbf{NPSPACE}$, and their relationship with time classes is as follows
 - $\mathbf{LOGSPACE}\math \subseteq \mathbf{P}, \quad \mathbf{NL} \subseteq \mathbf{P}$
 - $\mathbf{NP} \subseteq \mathbf{PSPACE}, \quad \mathbf{coNP} \subseteq \mathbf{PSPACE}$
 - $\mathbf{PSPACE} \subseteq \mathbf{EXP}$
+
 ** Turing Machines with Oracles
 
 \begin{equation}
@@ -409,6 +418,7 @@ Using oracles we can define different complexity classes. Le $C$ be some complex
 - $\textbf{NP}^C=\{L\L \text{ can be decided by a polynomial time } NTM \text{ with an oracle for some language } L' \in C\}$
 
 For example, $\text{MIN-VCOVER} \in \texbf{P}^\textbf{NP}$. Note that $\textbf{NP} \subseteq \textbf{P}^\textbf{NP}$ and $\textbf{coNP} \subseteq \textbf{P}^\textbf{NP}$. Using oracles we can also define a /polynomial time heriarchy/, wich is an infinite hiearchy of complexity classes.
+
 ** Search problems with decision version
 
 \begin{equation}
@@ -425,6 +435,7 @@ For example, $\text{MIN-VCOVER} \in \texbf{P}^\textbf{NP}$. Note that $\textbf{N
 \end{algorithm}
 
 Let $\mathbf{FP}$ be the class of search problems that can be solved by a Turing machine with output tape in polynomial time, then $\text{FMIN-VCOVER} \in \textbf{FP}^\textbf{NP}$. We can actually improve the previous algorithm by employing binary search and reducing the number of steps from $O(|V|)$ to $O(\log_2 |V|)$, so $\text{FMIN-VCOVER} \in \textbf{FP}^{\textbf{NP} \left[ \log_2 n \right]}$.
+
 ** The Travelling Salesman Problem
 
 We define the /Functional Travelling Salesman Problem/ (FTSP) as, given a weighted undirected graph, finding the minimum cost of an Hamilton cycle (if it exists).
@@ -473,6 +484,7 @@ A better algorithm relies again on binary search, resulting in $\text{FTSP} \in 
 \end{algorithm}
 
 Finally, since $\text{TSP} \in \textbf{NP-complete}$ also the specific $\text{FTSP} \in \textbf{NP-complete}$.
+
 * Exam discussion 09/02/2021
 ** Computability part
 *** Describe the language
