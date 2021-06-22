@@ -1,0 +1,59 @@
+#    -*- mode: org -*-
+
+
+Archived entries from file /home/eros/Desktop/comp3/README.org
+
+
+* Vertex coloring
+:PROPERTIES:
+:ARCHIVE_TIME: 2021-06-22 Tue 10:49
+:ARCHIVE_FILE: ~/Desktop/comp3/README.org
+:ARCHIVE_OLPATH: Computational Complexity/$\mathbf{NP-complete}$ languages
+:ARCHIVE_CATEGORY: README
+:END:
+
+Given an undirected graph $G=(V,E)$ and $k \in \mathbb{Z}$, a /k-coloring function/ $f: V \rightarrow \{1,2,\dots,k\}$ assigns a color to each node so that $f(u) \neq f(v), \forall \{u,v\} \in E$: the result would be a graph where no pair of nodes with the same color are touching. We are interested in solving the following problem
+
+\begin{equation}
+\text{VCOL} = \{(G,k)|G \text{ is an undirected graph admitting a k-coloring}\} \notag
+\end{equation}
+
+First, $\text{VCOL} \in \texbf{NP}$ since we can devise a NTM that
+- Guesses a coloring for each node. If the NTM encodes $k$ colors using $||k||$ bits, then for $n$ nodes the guess takes $O(||k|| \cdot n)$.
+
+$\text{VCOL} \in \textbf{NP-complete}$ since
+1. $\text{VCOL} \in \textbf{NP}$
+2. $\text{VCOL} \in \textbf{NP-hard}$, we can define a polynomial reduction $\text{EXACT-3-SAT} \leq_p \text{VCOL}$
+
+Also the more specific version of the problem $\text{3-VCOL} = \{(G,k)|G \text{ is an undirected graph admitting a 3-coloring}\} \in \mathbf{NP-complete}$.
+
+
+Archived entries from file /home/eros/Desktop/comp3/README.org
+
+
+* Vertex coloring
+:PROPERTIES:
+:ARCHIVE_TIME: 2021-06-22 Tue 11:49
+:ARCHIVE_FILE: ~/Desktop/comp3/README.org
+:ARCHIVE_OLPATH: Computational Complexity/$\mathbf{NP-complete}$ languages
+:ARCHIVE_CATEGORY: README
+:END:
+
+Given an undirected graph $G=(V,E)$ and $k \in \mathbb{Z}$, a /k-coloring function/ $f: V \rightarrow \{1,2,\dots,k\}$ assigns a color to each node so that $f(u) \neq f(v), \forall \{u,v\} \in E$: the result would be a graph where no pair of nodes with the same color are touching. We are interested in solving the following problem
+
+\begin{equation}
+\text{VCOL} = \{(G,k)|G \text{ is an undirected graph admitting a k-coloring}\} \notag
+\end{equation}
+
+First, $\text{VCOL} \in \texbf{NP}$ since we can devise a NTM that
+- Guesses a coloring for each node. If the NTM encodes $k$ colors using $||k||$ bits, then for $n$ nodes the guess takes $O(||k|| \cdot n)$.
+- Checks that the guess provides a k-coloring in $O(|E|)$.
+
+To proove $\text{VCOL} \in \textbf{NP-hard}$ we provide a reduction for $\text{EXACT-3-SAT} \leq_{p}\text{VCOL}$. Such a reduction should convert, in polynomial time, an EXACT-3-CNF to a pair $(G,k)$ (and viceversa) in a way that the CNF is satisfiable iff $G$ admits a $k$ coloring. We procede with an example to explain the logic.
+
+We first construct a graph $G$ with three nodes: $T$ (with color $true$), $F$ (with color $false$) and $B$ (with color $base$). For each variable $x_i$ of $\varphi$, we add two nodes and connect them to $B$: one labeled $x_i$, the other labeled $\bar{x}_i$. The color $x_i$ and $\barc{x}_i$ must be either $true$ or $false$, and since they can't have the same color they are also connected.
+
+We need to model the fact that some literals make certain clauses true, and to do so we introduce the OR operation through a triangle scheme. The scheme receives as input two literals $x_a$ and $x_b$ and gives the result in the node $x_c$
+- If both $x_a$ and $x_b$ are colored $false$, then the intermediate nodes must be $true$ and $base$. So $x_c$ must be $false$.
+- If either $x_a$ or $x_b$
+

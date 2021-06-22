@@ -3,7 +3,7 @@
 Collection of notes and code about the Computability and Computational Complexity course, part of the Master in Computer Science at the Università di Trento (UNITN).
 
 * Computational Complexity
-** $\text{DTIME}$ and $\text{NTIME}$, $\textbf{P}$ and $\textbf{NP}$
+** $\text{DTIME}$ and $\text{NTIME}$, $\textbf{P}$ and $\textbf{NP}$, $\texbf{EXP}$ and $\textbf{NEXP}$
 
 From now on we will focus our attention on the class of decidable problems $R=\{L|\exists \text{ Turing machine } M \text{ that decides } L \}$. Considering the languages that can be decided in $O(f(n)), f: \mathbb{N} \rightarrow \mathbb{N}$, we have
 - $\text{DTIME}(f(n))=\{L|L\in R, T_M(n)\in O(f(n))\}$, solvable by a deterministic TM.
@@ -18,6 +18,10 @@ Nondeterministic TMs are often devised using a /trail and error/ (or guess and c
 2. Check the certificate to proove $w \in L$, in polynomial time.
 
 The class $\mathbf{PC}$ collects the languages that can be decided with such NTMs, and it is in fact an alternative definition of $\mathbf{NP}$ since $\mathbf{PC}=\mathbf{NP}$.
+
+We can also define two more classes of problems that deal with higher time resource usage.
+- $\textbf{EXP} = \bigcup_{c\geq 1} \text{DTIME}(2n^c)$, solvable by a deterministic Turing machine in exponential time.
+- $\textbf{NEXP} = \bigcup_{c\geq 1} \text{NTIME}(2n^c)$, solvable by a non-deterministic Turing machine in exponential time.
 
 ** $\textbf{P}$ languages
 *** Reachability
@@ -189,57 +193,110 @@ To proove that $CLIQUE \in \mathbf{NP-hard}$ we can define a polynomial reductio
 
 *** Binary integer programming
 
-$A \in \mathbb{Z}^{m \times n}$ and $\bar{b} \in \mathbb{Z}^m$ contain respectively the coefficients $a_{ij} \in \mathbb{Z}$ and $b_i \in \mathbb{Z}$ of a system of linear inequalities, and to solve the system means finding a $\bar{x}$ s.t. $A \cdot \bar{x} \leq \bar{b}$.
+We consider now an optimization problem. Consider a system of inequalities of the form
+
+   \begin{equation}
+\begin{cases}
+a_{11} \cdot x_1 + a_{12} \cdot x_2 + \cdots a_{1n} \cdot x_n \leq b_1 \\
+a_{21} \cdot x_1 + a_{22} \cdot x_2 + \cdots a_{2n} \cdot x_n \leq b_2 \\
+\cdots \\
+a_{m1} \cdot x_1 + a_{m2} \cdot x_2 + \cdots a_{mn} \cdot x_n \leq b_m
+\end{cases}
+\notag
+\end{equation}		
+
+Does it have a solution with $x_1, \cdots, x_n \in \{0,1\}$? In other words, given a matrix $A \in \mathbb{Z}^{m \times n}$ and a vector $\overline{b} \in \mathb{Z}^m$ is there are vector $\overline{x} \in \{0,1\}^n$ such that $A \cdot \overline{x} \leq \overline{b}$? In this setting we define the problem $\text{BIP}$ (Binary Integer Programming)
 
 \begin{equation}
-\text{BIP} = \{(A,\bar{b})|A \in \mathbb{Z}^{m \times n}, \bar{b} \in \mathbb{Z}^m, \exists \bar{x}\in \{0,1\}^n | A \cdot \bar{x} \leq \bar{b}\} \notag
+\text{BIP} = \{(A,\overline{b})| A \in \mathbb{Z}^{m \times n},\ \overline{b} \in \mathb{Z}^m, \ \exists  \overline{x} \in \{0,1\}^n s.t. A \cdot \overline{x} \leq \overline{b}\} \notag
 \end{equation}
 
-$\text{BIP} \in \textbf{NP-complete}$ since
-1. $\text{BIP} \in \textbf{NP}$
-2. $\text{BIP} \in \textbf{NP-hard}$, we can define a polynomial reduction $\text{EXACT-3-SAT} \leq_p \text{BIP}$
+We first prove that $\text{BIP} \in \textbb{NP}$ by devising a NTM that
+- Makes a nondeterministic guess of  $0,1$ values for each variable in $\overline{x}$, each guess takes $n$ steps (done in polynomial time).
+- Checks that all $m$ inequalities are satisfied in polynomial time.
 
-Also the more general version of the problem $\text{IP} = \{(A,\bar{b})|A \in \mathbb{Z}^{m \times n}, \bar{b} \in \mathbb{Z}^m\} \notag \in \textbf{NP-complete}$
+To proove $\text{BIP} \in \textbf{NP-hard}$ we provide a reduction for $\text{EXACT-3-SAT} \leq_{p}\text{BIP}$. Such a reduction should convert, in polynomial time, an EXACT-3-CNF to a system of inequalities (and viceversa) in a way that the CNF is satisfiable iff the system admits solutions. We procede with an example to explain the logic.
+
+Consider a EXACT-3-CNF $\varphi = (x_1 \vee x_2 \vee \bar{x}_3) \veewedge (\bar{x}_2 \vee x_3 \vee \bar{x}_4)$.
+- From the boolean variables $x_i$ of $\varphi$ we can set corresponding arithmetic variables $y_i$ for the system, such that if  $x_i=True \rightarrow y_i=1$, $x_i=False \rightarrow y_i=0$. Then we will have the arithmetic variables $y_1,y_2,y_3,y_4$.
+- $\varphi$ is satisfiable iff each clause is true, so at least one literal in each clause must be true. We can construct for each clause an inequality such that if its literal is of the form $x_i \rightarrow y_i$, $\bar{x_i} \rightarrow (1-y_i)$, and the resulting sum should be at least 1. The result is the following system of inequalities
+
+\begin{equation}
+\begin{cases}
+y_1+y_2+(1-y_3) \geq 1\\
+(1-y_2)+y_3+y_4 \geq 1
+\end{cases}
+\notag
+\end{equation}
+
+The instances of $\text{BIP}$ take the form of  $\leq$ inequalities with one constant on the right, but it is a simple matter of arithmetics to set the new system in such a form.  The system is constructed in polynomial time: $m$ inequalities are constructed with at most $n+1$ coefficients.
+
+Such a procedure is indeed a reduction that works in both directions.
+- If $\varphi$ is satisfiable then there is a truth assignment $\tau$ that makes $\varphi$ true: each clause of $\tau$ has at least one true literal, so at least one of the expressions of the form $y_i$ or $(1-y_i)$ must be one and the inequality is satisfied. This holds for every inequality in the system.
+- If our system has a solution, then there is an assignment for each $y_i$ that satisfies all the inequalities. In such an assignment, at least one of the expressions of the form  $y_i$ or $(1-y_i)$, and so its corresponding literal in its clause. This holds for all the clauses of $\tau$.
+
+Also the more general version of the problem $\text{IP} = \{(A,\bar{b})|A \in \mathbb{Z}^{m \times n}, \bar{b} \in \mathbb{Z}^m\} \notag \in \textbf{NP-complete}$.
 
 *** Vertex coloring
 
-Given an undirected graph $G=(V,E)$ and $k \in \mathbb{Z}$, a function $\text{k-coloring}: V \rightarrow \{1,2,\dots,k\}$ assigns a color to each node so that $f(u) \neq f(v), \forall \{u,v\} \in E$.
+Given an undirected graph $G=(V,E)$ and $k \in \mathbb{Z}$, a /k-coloring function/ $f: V \rightarrow \{1,2,\dots,k\}$ assigns a color to each node so that $f(u) \neq f(v), \forall \{u,v\} \in E$: the result would be a graph where no pair of nodes with the same color are touching. We are interested in solving the following problem
 
 \begin{equation}
 \text{VCOL} = \{(G,k)|G \text{ is an undirected graph admitting a k-coloring}\} \notag
 \end{equation}
 
-$\text{VCOL} \in \textbf{NP-complete}$ since
-1. $\text{VCOL} \in \textbf{NP}$
-2. $\text{VCOL} \in \textbf{NP-hard}$, we can define a polynomial reduction $\text{EXACT-3-SAT} \leq_p \text{VCOL}$
+First, $\text{VCOL} \in \texbf{NP}$ since we can devise a NTM that
+- Guesses a coloring for each node. If the NTM encodes $k$ colors using $||k||$ bits, then for $n$ nodes the guess takes $O(||k|| \cdot n)$.
+- Checks that the guess provides a k-coloring in $O(|E|)$.
 
-Also the more specific version of the problem $\text{3-VCOL} = \{(G,k)|G \text{ is an undirected graph admitting a 3-coloring}\}$
+To proove $\text{VCOL} \in \textbf{NP-hard}$ we provide a reduction for $\text{EXACT-3-SAT} \leq_{p}\text{VCOL}$. Such a reduction should convert, in polynomial time, an EXACT-3-CNF to a pair $(G,k)$ (and viceversa) in a way that the CNF is satisfiable iff $G$ admits a $k$ coloring. We procede with an example to explain the logic.
 
-** $\mathbf{coNP}$
+We first construct a graph $G$ with three nodes: $T$ (with color $true$), $F$ (with color $false$) and $B$ (with color $base$). For each variable $x_i$ of $\varphi$, we add two nodes and connect them to $B$: one labeled $x_i$, the other labeled $\bar{x}_i$. The color $x_i$ and $\barc{x}_i$ must be either $true$ or $false$, and since they can't have the same color they are also connected.
 
-Similarly to the $RE$ languages case, the complement of languages in
-$\mathbf{NP}$ present an asymmetric behaviour. Considering a NTM
-- Accepting requires /at least/ one accepting path
-- Rejecting requires /all paths/ to be rejecting
+[[./img/vcol_basegraph.jpg]]
 
-We define the complexity class containing the complements of $\mathbf{NP}$ languages as $\mathbf{coNP} = \{L|\bar{L} \in \mathbf{NP}\}$: note that this is not $L|L \notin \mathbf{NP}$, so $\exists L \in \mathbf{NP} \cap \mathbf{coNP}$. While we still don't know if $\mathbf{NP} = \mathbf{coNP}$, some theorems can help us  to tackle this question
-- $\mathbf{NP} = \mathbf{coNP} \iff \exists L \in \mathbf{NP-complete} \cap \mathbf{coNP}$
-- $\mathbf{P} \subseteq \mathbf{NP} \cap \mathbf{coNP}$
-- $\mathbf{P} = \mathbf{NP} \Rightarrow \mathbf{NP} = \mathbf{coNP}$
+We need to model the fact that some literals make certain clauses true, and to do so we introduce the OR operation through a triangle scheme. The scheme receives as input two literals $x_a$ and $x_b$ and gives the result in the node $x_c$
+- If both $x_a$ and $x_b$ are colored $false$, then the intermediate nodes must be $true$ and $base$. So $x_c$ must be $false$.
+- If either $x_a$ or $x_b$ is colored $true$, then there is a coloring for the intermediate nodes with one $false$ and the other $base$. So $x_c$ must be true.
 
-*** Factor
+[[./img/vcol_or.jpg]]
 
+Such a construction can be combined to compute the value of a clause of three literals. To force each clause to be $true$, we just need to connect its output node to $F$ and $B$.
+
+[[./img/vcol_complete.jpg]]
+
+The described procedure is a reduction in both directions.
+- If $\varphi$ is satisfiable then there is a truth assignment $\tau$ that makes $\varphi$ true. For every assignment $\tau(x_i)$, nodes $x_i$ and $\bar{x_i}$ are colored accordingly to the assigned value and respect the 3-coloring. Finally, since each clause in $\varphi$ must be true, the output of a 3-input OR can be colored in such a way that the output note is colored $true$.
+- If $G$ has a 3-coloring then nodes $x_i$ and $\bar{x}_i$ have different colors (either $true$ or $false$). Also, for each clause the output of the circuit must be $true$ since it is connected to $F$ and $B$. Finally, the clause output is $true$ only if one of its input nodes is $true$ (and vice versa, if its input are only $false$ then the output is $false$, which is impossible).
+
+The reduction that we just described uses only 3 colors, in fact also $\text{3-VCOL} \in \mathbf{NP-complete}$.
 \begin{equation}
-\text{FACTOR}=\{(N,K)|N \in \mathbb {N} \text{ with at least a prime factor } M \leq k\} \notag
+\text{3-VCOL} = \{G|G \text{ is an undirected graph admitting a 3-coloring}\} \notag
 \end{equation}
 
-This is an example of problem in a "/limbo/" between $\mathbf{P}$ and $\mathbf{NP-complete}$, in fact $\text{FACTOR} \in \mathbf{NP} \cap \mathbf{coNP}$. We don't know if $\text{FACTOR} \notin \mathbf{P}$, but the current cryptography field is based on this belief: finding a key of a channel is equivalent to factorize a very large $N$.
+** $\mathbf{coNP}$ and $\text{FACTOR}$
 
-** $\textbf{EXP}$ and $\textbf{NEXP}$
+We consider now the problem $\text{UNSAT}=\{\varphi | \varphi \text{ is a non-satisfiable boolean formula in CNF}\}$. By trying to prove that $\text{UNSAT}$ we might be tempted to follow the method used for $\text{SAT}$ and devise a NTM that
+- Guesses a truth assignment $\tau$ for $\varphi$ in polynomial time.
+- Checks that $\tau$ /does not/ satisfy $\varphi$, in which case accepts (or rejects).
 
-Considering the languages that can be decided in exponential time, we have the following complexity classes
-- Exponential time $\textbf{P} = \bigcup_{c\geq 1} \text{DTIME}(2^{n^c})$, solvable by a deterministic Turing machine
-- Nondeterministic exponential time $\textbf{NP} = \bigcup_{c\geq 1} \text{NTIME}(2^{n^c})$, solvable by a non-deterministic Turing machine
+However, the NTM we just provide doesn't decide $\text{UNSAT}$: the CNF $\varphi$ might be
+- Not satisfiable :: In which case any branch of the computational tree leads to an accepting state, and the NTM correctly accepts $\varphi$.
+- Satisfiable :: In which case some branches still lead to a $\tau$ that doesn't satisfy $\varphi$, and the NTM wrongly accepts $\varphi$.
+
+In fact, the devised NTM guesses a certificate to answer "No" rather than "Yes": while acceptance requires the /exististence/ of a path to accept, rejection requires /all/ paths to be rejecting. This asymmety between acceptance and rejection is somehow similar to the one in $\text{RE}$ languages and their complements.
+
+After this introduction, we can define the class of languages $\textbf{coNP} = \{ L | \bar{L} \in \textbf{NP}\}$ with an important observation: $\mathbf{coNP}$ is /not/ the complement of $\textbf{NP}$, is the set of /complements/ of $\textbf{NP}$ languages. In fact, there are languages $L$ such that $L \in \textbf{NP} \wedge L \in \textbf{coNP}$.
+
+Another open question is if $\textbf{NP}=\textbf{coNP}$, and we can have some insights on this claim knowing that
+- $\mathbf{NP} = \textbf{coNP} \Leftrightarrow \exists L \in \mathbf{NP-complete} \wedge L \in \mathbf{coNP}$, no such language has been found yet.
+- $\textbf{P} \subseteq \textbf{NP} \cap \textbf{coNP}$, this and previous statement imply that if $\textbf{P}=\textbf{NP}$ then $\textbf{NP}=\textbf{coNP}$ (not the opposite).
+
+An example of language both in $\textbf{NP}$ and $\textbf{coNP}$ is $\text{FACTOR}$. The common belief is that $\text{FACTOR} \notin \mathbf{P}$ (and $\text{FACTOR} \notin \textbf{NP-complete}$).
+
+\begin{equation}
+\text{FACTOR} = \{(N,k) | N \in \mathbb{N} \wedge M > k, \forall M \text{prime factor of  } N \} \notag
+\end{equation}
 
 ** $\text{DSPACE}$ and $\text{NSPACE}$
 
