@@ -1,0 +1,189 @@
+#+TITLE: Exam discussion 09/02/2021
+* Computability part
+** Describe the language
+
+We first need to identify what is the language decided by the Turing machine represented by the scheme, where $\alpha \in \{a,b,c\}$.
+
+#+CAPTION: The scheme provided for the Turing machine to be discussed
+[[./img/tm_09022021.jpg]]
+
+From $q_1$ we go to $q_{accept}$ if the input string is empty, otherwise move to $q_2$.
+
+In $q_2$ we always read a symbol $\alpha$ in tape $1$ and move to the right, then we either
+- Copy $\alpha$ to tape $2$, move right and stay in $q_2$
+- Copy $\alpha$ to tape $3$, move right and move to $q_3$
+Note that this is a nondeterministic behaviour.
+
+In $q_3$ we either
+- Keep copying $\alpha$ in tape $3$, moving right and staying in $q_3$
+- Copy $\alpha$ to tape $2$, move right in tape $2$, move left in tape $3$ and move to $q_4$
+Also here we have a nondeterministic behaviour.
+
+In $q_4$ we keep copying $\alpha$ to tape $2$ until we reach the end of the string in tape $1$.
+
+When we reach $q_5$, the heads of tape $2$ and $3$ are at the end of the respective strings. We loop in $q_5$ to check that $2$ and $3$ have the same string, when we end with the empty symbol we move to $q_{accept}$.
+
+Finally, the arch from $q_3$ to $q_5$ represents the case where we have read all the string in tape $1$ and skip to the checks made by $q_5$.
+
+To undestand the overall behaviour we explore the possible paths to reach $q_{accept}$
+- From $q_1$ to $q_{accept}$, so the empty string =-= is part of the language
+- $q_1 \rightarrow q_2 \rightarrow q_3 \rightarrow q_5 \rightarrow q_{accept}$
+  - $q_2$ copies from tape $1$ to tape $2$, let's call the resulting string in tape $2$ $w_1$
+  - $q_3$ copies the part following $w_1$ to tape $3$, let's call it $w_2$
+  - The string in tape $1$ is seen as $w_1 w_2$, each possible length of $w_1$ (and $w_2$) is tested on a different computational path
+  - $q_5$ checks that $w_1=w_2$, and if so we end up in $q_{accept}$
+    This means that strings of the form $w_1w_2$ s.t. $w_1=w_2,\quad w_1,w_2 \in \{a,b,c\}^+$ are part of the language
+- $q_1 \rightarrow q_2 \rightarrow q_3 \rightarrow q_4 \rightarrow q_5 \rightarrow q_{accept}$
+  - $q_2$ copies from tape $1$ to tape $2$, let's call the resulting string in tape $2$ $w_1$
+  - $q_3$ copies the part following $w_1$ to tape $3$, let's call it $w_2$
+  - $q_4$ copies the part following $w_2$ to tape $2$, let's call it $w_3$
+  - The string in tape $1$ is seen as $w_1 w_2 w_3$, each possible length of $w_1, w_2, w_3$ is tested on a different computational path
+  - The string in tape $2$ is of the form $w_1 w_3$
+  - $q_5$ checks that $w_1w_3=w_2$, and if so we end up in $q_{accept}$
+    This mean that strings of the form $w_1 w_2 w_3$ s.t. $w_2=w_1 w_3, \quad w_1,w_2,w_3 \in \{a,b,c\}^+$ are part of the language
+We then conclude that the language decided by the machine is $L=\{w_1w_2w_3|w_1,w_2,w_3 \in \{a,b,c\}^*,\quad w_2=w_1w_3\}$.
+
+** Deterministic or nondeterministic?
+
+We are dealing with a nondeterministic Turing machine: we have an example of nondeterministic behaviour between $q_2$ and $q_3$, where with input $(q_2,\alpha,\_,\_)$ we can either stay in $q_2$ or move to $q_3$.
+
+** Running time
+
+By running a nondeterministic machine we generate a computation tree that, in the case of parallel running, has a running time equivalent to the longest possible computation branch.
+- From $q_1$ to $q_2$ the input head doesn't move, so its constant time w.r.t. input
+- From $q_2$ to $q_5$ the input head always moves one step right by each iteration, so $O(n)$
+- In $q_5$ we read two tapes at the same time, each with length $n/2$
+We then conclude that smallest asymptotic time for this machine is $O(n)$
+
+** Property
+
+Let $K$ be the language previously described, we consider now the following property $P$
+
+\begin{equation}
+P = \{<M>| \text{ every string that }M\text{ accepts is not in }K\}\notag
+\end{equation}
+\begin{equation}
+L=\{w_1w_2w_3|w_1,w_2,w_3 \in \{a,b,c\}^*,\quad w_2=w_1w_3\} \notag
+\end{equation}
+
+Remember that in general properties are languages that have as an input the encoding of a Turing machine, and for this reason we can deal with with them by using specific theoretical tools (e.g. Rice theorem).
+
+Is $P$ non-trivial? So
+- Is $P \neq \emptyset$? :: Yes, we can describe a Turing machine that accepts only the string $ab$, and $ab \notin K$.
+- $\exists$ a Turing machine $M$ s.t. $M \notin P$? :: Yes, for example the scheme provided at the beginning describes such a machine, or also a Turing machine that just accepts the empty string.
+We then conclude that $P$ is non-trivial.
+
+Is $P$ semantic? Remember that $P$ is semantic $\iff$ given $M_1,M_2$ s.t. $L(M_1)=L(M_2)=L$, either $M_1,M_2 \in P$ or $M_1,M_2 \notin P$. Given $L$, we have two consider two cases
+- $L \cap K \neq \emptyset \Rightarrow \exists w \in L$ s.t. $w \in K$, so $M_1,M_2 \notin P$
+- $L \cap K = \emptyset \Rightarrow w \notin K, \forall w \in L$, so $M_1,M_2 \in P$
+We then conclude that $P$ is semantic.
+
+Finally, is
+- $P \in \mathbf{R}$? :: So $\exists M$ that decides $P$? No, because we proved that $P$ is semantic and non-trivial and for the Rice's theorem we conclude $P \notin R$
+- $P \in \mathbf{RE} \setminus  \mathbf{R}$? :: So $P \notin R$ (just proven) and $\exists M$ that accepts $P$
+- $P \notin \mathbf{RE}$? :: So $\nexists M$ that accepts $P$
+So $\exists M$ that accepts $P$?
+- We may try to build a machine that, for each string accepted by a given TM, answers =Yes= if none of them is in $K$. However, this is impossible: the language accepted by the TM may be infinite and $M$ may never halt.
+- We can build a machine that answers =No= instead: if $\exists w \in K$, at some time $M$ will halt and answer =No=.
+We have proven that $\exists M$ that accepts $\bar{P}$, so $\bar{P} \in \mathbf{RE}$. 
+
+Note that $P,\bar{P} \in \mathbf{RE} \Rightarrow P,\bar{P} \in \mathbf{R}$. But we have proven both that $P \notin \mathbf{R}$ and $\bar{P} \in \mathbf{RE}$, so we must conclude that $P \notin \mathbf{RE}$.
+
+* Complexity part
+** $\text{COMPUTERS}$ problem
+
+#+BEGIN_QUOTE
+You are given a set $C = \{ 1, \cdots, n \}$ of n computers. These computers are all connected, via the network, to a central storage.
+
+The hard drive of this central storage is divided into $P = \{ 1, \cdots, m \}$ pages.
+
+For each computer $i$ in $C$, you are given the set $D_i$ of pages that the computer $i$ will access on the central storage, when it runs.
+
+Given the set of computers $C$, the set of pages $P$, an integer $k$, and for each computer $i$ in $C$, the set of pages $D_i$ that computer $i$ accesses, the problem $\text{COMPUTERS}$ is to decide whether it is possible to run at least $k$ computers without having any two computers ever accessing the same page.
+#+END_QUOTE
+
+We can prove that this language $L$ is in $\mathbf{NP}$ by providing a "guess and check" algorithm, that means provide an algorithm that
+1. Guesses a candidate solution for the problem: in this case, a set of computers.
+2. Verifies that the candidate is a solution: in this case, a set of computers with $k$ computers s.t. no page is shared between any of its elements.
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\KwData{A set of pages $P$, a set of computers $C$, for each computer $i$ a set of pages $D_i$}
+\KwResult{$Y$ if $\exists S \subseteq C$ s.t. $|S| \geq k$ and $D_i \cap D_j = \emptyset, \forall i,j \in S$, $N$ otherwise}
+ Guess a set $S \subseteq C$\;
+ \If{$|S| < k$}{
+  \Return N\;
+ }
+ \ForAll{$i \in S$}{
+   \ForAll{$j \in S$}{
+     \If{$i \neq j$ and $D_i \cap D_j = \emptyset$}{
+       \Return N\;
+     }
+   }
+ }
+ \Return Y\;
+ \caption{A guess and check nondeterministic algorithm for the \text{COMPUTERS} problem}
+\end{algorithm}
+
+The algorithm is in $\textbf{NP}$ if it runs in polynomial time, Let's check each step
+1. Guessing a candidate solution requires to
+   1) Copy in a secondary tape one computer at a time
+   2) Either stop or copy another computer
+   This is done by scanning the input tape in just one direction, so $O(n)$
+2. Check $|S| < k$ is done by counting the number of computers in the input tape with one scan, so $O(n)$
+3. Verifying the candidate requires polynomial time since
+   1) First loop for $i \in S$ is in $O(n)$
+   2) Second loop for $j \in S$ is in $O(n)$
+   3) Checking $i \neq j$ is done in constant time, $D_i \cap D_j = \emptyset$ requires
+      1) First loop for $p \in P_i$ is in $O(m)$
+      2) Second loop for $p' \in P_j$ is in $O(m)$
+      3) Checking $p \neq p'$ is done in constant time
+   This is done in $O(n^2 m^2)$
+Overall, we have $O(n+n+n^2 m^2)$. So $\text{COMPUTERS} \in \textbf{NP}$.
+
+To prove $\text{COMPUTERS}$ is $\textbf{NP-hard}$, we need to provide a reduction $L \leq_p \text{COMPUTERS}$ s.t. $L \in \textbf{NP-hard}$. Such reduction should convert an input for $L$ into an input for $\text{COMPUTER}$, in polynomial time. For example, we can choose $L$ to be Independent Set, $\text{IS}$. Remember that $\text{IS}=\{ (G,k') |G \text{ undirected graph}, \exists S \text{ independent set s.t.} |T| \ge k'\}$ and $T$ is an independent set in $G=(V,E)$ if and only if there is no edge connecting any pair of nodes in $T$.
+
+Back to the reduction, we can translate
+- Each node $v \in V$ of the graph to a computer $c \in C$
+- Each edge $e \in E$ to a page $p \in P$
+- Each set of edges $E_v=\{e \in E | e=(v,u) \text{ or } e=(u,v), \quad v,u \in V\}$ for node $v \in V$ to a set of pages $D_i$ that computer $i \in C$ accesses
+- The $k'$ of $\text{IS}$ to the $k$ of $\text{COMPUTERS}$
+
+This reduction is valid if $\text{IS}$ has a solution $\iff \text{COMPUTERS}$ has a solution.
+- $\text{IS}$ has a solution $\Rightarrow$ $\text{COMPUTERS}$ has a solution. If $T$ is a solution to $\text{IS}$ then
+  - $|T| \geq k'$ then $|S| \geq k$
+  - $e=(u,v) \notin E , \forall u,v \in T \Rightarrow D_i \cap D_j = \emptyset, \forall i,j \in S$. Proof by contradiction: assume $\exists i,j \in S| D_i \cap D_j \neq \emptyset$: this means that there is an equivalent page $e=D_i \cap D_j$ shared by computers $i,j$ and connected in $T$, but this is impossible if $T$ is an independent set.
+-  $\text{COMPUTERS}$ has a solution $\Rightarrow$ $\text{IS}$ has a solution. If $S$ is a solution to $\text{COMPUTERS}$ then
+  - $|S| \geq k$ then $|T| \geq k'$
+  - $D_i \cap D_j = \emptyset, \forall i,j \in S \Rightarrow e=(u,v) \notin E , \forall u,v \in T$. Proof by contradiction: assume $\exists e=(u,v) \in E | u,v \in T$: this means that there is an equivalent edge $D_u \cap D_v = e$ connecting $u,v$ in $T$ and an equivalent shared page in $S$, but this is impossible if $S$ is a solution for $\text{COMPUTERS}$.
+Having proved both directions, we conclude that the reduction is correct.
+
+Also, the reduction is in polynomial time: starting from the graph $G$, it copies
+- The $n$ nodes to build $C$
+- The $m$ edges to build $P$
+- The $n*m$ (in the worst case) to build $D_i, \forall i \in C$
+So we deal with a $O(n + m + n m)$ algorithm.
+
+The reduction is correct and works in polynomial time, so $\text{COMPUTERS} \in \textbf{NP-hard}$, and since we already proved that $\text{COMPUTERS} \in \texbf{NP}$ we can also conclude that $\text{COMPUTERS} \in \textbf{NP-complete}$.
+
+** Search version of $\text{COMPUTERS}$
+
+Considering the problem $\text{COMPUTERS}$, we ask ourself what is the maximum number of computers we can turn on?
+The idea is to use $\text{COMPUTERS}$ as an oracle
+
+\begin{algorithm}[H]
+\SetAlgoLined
+\KwData{A set of pages $P$, a set of computers $C$, for each computer $i$ a set of pages $D_i$}
+\KwResult{The maximum number of computers $k$ we can turn on}
+ k=0\;
+ \While{$k \leq |e|$ and $(C,P,D_i,k) \in \text{COMPUTERS}$}{
+  k++\;
+ }
+ \Return k-1\;
+ \caption{\text{MAX-COMPUTERS} - search version of the \text{COMPUTERS} problem}
+\end{algorithm}
+
+The algorithm requires polynomial time with an oracle for COMPUTERS. Since the algorithm solves a search problem, we say that $\text{MAX-COMPUTERS} \in \textbf{FP}^{\textbf{NP}}$.
+
+But is this the smallest complexity class? Actually, we can improve the previous algorithm by applying binary search, that uses a logarithmic number of calls: so in fact  $\text{MAX-COMPUTERS} \in \textbf{FP}^{\textbf{NP} [\log n]}$.
+
