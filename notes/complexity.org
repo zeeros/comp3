@@ -1,5 +1,10 @@
 #+TITLE: Computational Complexity
-* $\text{DTIME}$ and $\text{NTIME}$, $\textbf{P}$ and $\textbf{NP}$, $\texbf{EXP}$ and $\textbf{NEXP}$
+
+* Overview
+
+[[./img/classes_overview.jpg]]
+
+* $\text{DTIME}$ and $\text{NTIME}$, $\textbf{P}$ and $\textbf{NP}$, $\mathbf{EXP}$ and $\textbf{NEXP}$
 
 From now on we will focus our attention on the class of decidable problems $R=\{L|\exists \text{ Turing machine } M \text{ that decides } L \}$. Considering the languages that can be decided in $O(f(n)), f: \mathbb{N} \rightarrow \mathbb{N}$, we have
 - $\text{DTIME}(f(n))=\{L|L\in R, T_M(n)\in O(f(n))\}$, solvable by a deterministic TM.
@@ -294,30 +299,21 @@ An example of language both in $\textbf{NP}$ and $\textbf{coNP}$ is $\text{FACTO
 \text{FACTOR} = \{(N,k) | N \in \mathbb{N} \wedge M > k, \forall M \text{prime factor of  } N \} \notag
 \end{equation}
 
-* $\text{DSPACE}$ and $\text{NSPACE}$
+* $\text{DSPACE}$ and $\text{NSPACE}$,  $\textbf{LOGSPACE}$ and $\textbf{NL}$
 
-We now consider a two-tapes Turing machine with a read-only /input tape/ and a read-write /working tape/, with no need to output anything. The space required by such machine is denoted as $S_M(n)$, the maximum number of cells visited on the working tape for an input of lenght $n$. In the non-deterministic case we must consider all the computation paths.
+We are now consider the /space/ requirement of TMs. For convenience, we are going to consider only TMs (or NTMs) with just a read-only /input tape/ and a read-write /working tape/. For such a TM we define $S_M(n)$ as the maximum number of cells visited on the working tap when executed with input of lenght $n$ (for NTM whole the max among all computation branches). Considering the languages that can be decided in $O(f(n)), f: \mathbb{N} \rightarrow \mathbb{N}$, we have
+- $\text{DSPACE}(f(n))=\{L|\exists T_M \text{ deciding } L, S_M(n) \in O(f(n))\}$, solvable by a deterministic TM using space in the order of $f(n)$.
+- $\text{NSPACE}(f(n))=\{L|\exists NT_M \text{ deciding } L, S_M(n) \in O(f(n))\}$, solvable by a non-deterministic TM sing space in the order of $f(n)$.
 
-Let $f: \mathbb{N} \rightarrow \mathbb{N}$, we have
-- $\text{DSPACE}(f(n))=\{L|\exists T_M \text{ deciding } L, S_M(n) \in O(f(n))\}$, solvable by a non-deterministic Turing machine using space in the order of $f(n)$.
-- $\text{NSPACE}(f(n))=\{L|\exists NT_M \text{ deciding } L, S_M(n) \in O(f(n))\}$, solvable by a non-deterministic Turing machine using space in the order of $f(n)$.
-
-* $\textbf{LOGSPACE}$ and $\textbf{NL}$
-
-Considering only the languages that can be decided with a logarithmic amount of space, we have the following complexity classes
-- Logspace $\textbf{LOGSPACE} = \text{DSPACE}(\log n)$, solvable by a deterministic Turing machine
-- Nondeterministic logspace $\textbf{NL} = \text{NSPACE}(\log n)$, solvable by a non-deterministic Turing machine
+Considering the languages that can be decided with a logarithmic amount of space, we have
+- $\textbf{LOGSPACE} = \text{DSPACE}(\log n)$, solvable by a deterministic Turing machine
+- $\textbf{NL} = \text{NSPACE}(\log n)$, solvable by a non-deterministic Turing machine
 
 For sure $\textbf{LOGSPACE} \subseteq \textbf{NL}$, but is $\textbf{LOGSPACE}=\textbf{NL}$? This is still an open question
-- $L_1 \leq_L L_2$ is a logspace reduction
-- A language $L\in \textbf{NL-complete} \iff L \in \textbf{NL} \wedge L' \leq_L L, \forall L'\in \textbf{NL}$.
+- A language $L\in \textbf{NL-complete} \iff L \in \textbf{NL} \wedge L' \leq_L L, \forall L'\in \textbf{NL}$, where  $\leq_L$ stands for logspace reduction.
 - We know that $\textbf{LOGSPACE} = \textbf{NL} \iff \exists L | L \in \textbf{LOGSPACE} \wedge L \in \textbf{NL-complete}$.
 
-** $L_{01} \in \mathbf{LOGSPACE}$ 
-
-\begin{equation}
-L_{01} = \{ 0^n1^n | n \geq 0\} \notag
-\end{equation}
+For example $L_{01}=\{0^n1^n|n \geq 0\} \in \mathbf{LOGSPACE}$. We can devise a TM that takes an input $w$ and accepts if $w$ is empty, otherwise scans left-to-right and increments a counter for each 0 found. When a 1, the TM keeps scanning but increments a second counter for each 1 found: if at the two counters are the same, accept, otherwise reject. For an input of lenght $n=|w|$ each counter, encoded in binary, takes $O(\log_2 n)$ cells, so $S_M(n) \in O(\log_2 n)$.
 
 \begin{algorithm}[H]
 \SetAlgoLined
@@ -345,13 +341,7 @@ L_{01} = \{ 0^n1^n | n \geq 0\} \notag
  \caption{Turing machine for $L_{01}$, $S_M(n) \in O(\log_2 n) \Rightarrow L_{01} \in \mathbf{LOGSPACE}$}
 \end{algorithm}
 
-** $\text{REACHABILITY} \in \mathbf{NL-complete}$
-
-\begin{equation}
-\text{REACHABILITY} = \{(G,s,t)|\text{ directed graph } G \text{ has a path from } s \text{ to } t\} \notag
-\end{equation}
-
-Note that we can store into the working tape a pointer with the position of the input string in the input tape: this pointer would take only $O(\log_2 |w|)$ cells instead of holding the entire string in $O(|w|)$.
+An example of $\mathbf{NL}$ language (in fact $\mathbf{NL-complete}$) is  $\text{REACHABILITY} = \{(G,s,t)|\text{ directed graph } G \text{ has a path from } s \text{ to } t\}$. We can devise a NTM that stores into the working tape a pointer with the position of the input string in the input tape: this pointer would take only $O(\log_2 |w|)$ cells instead of holding the entire string in $O(|w|)$.
 
 \begin{algorithm}[H]
 \SetAlgoLined
@@ -377,29 +367,9 @@ Note that we can store into the working tape a pointer with the position of the 
  \caption{Algorithm for $\text{REACHABILITY} \in \mathbf{NL}$}
 \end{algorithm}
 
-Furthermore, $\text{REACHABILITY} \in \textbf{NL-complete}$.
-
 * Savitch's Theorem
 
-\begin{equation}
-\text{NSPACE}(f(n)) \subseteq \text{DSPACE}(f^2(n)) \quad \forall n \in \mathbb{N}, \forall f:\mathbb{N} \rightarrow \mathbb{N}| f(n) \geq \log n \notag
-\end{equation}
-
-When considering space, there is in fact not much difference between deterministic and non-deterministic Turing machines: unlike time, space can be reused.
-
-** $\mathbf{PSPACE}$ and $\mathbf{NPSPACE}$
-
-\begin{equation}
-\mathbf{PSPACE}=\bigcup_{c \geq 1} \text{DSPACE}(n^c),\quad  \mathbf{NSPACE}=\bigcup_{c \geq 1} \text{DSPACE}(n^c) \notag
-\end{equation}
-
-From the Savitch's theorem, the following corollary over (at least) polynomial space follows
-
-\begin{equation}
-\mathbf{PSPACE} = \mathbf{NPSPACE} \notag
-\end{equation}
-
-** $\text{REACHABILITY} \in \text{DSPACE}((\log_2 n)^2)$
+We have previously devised a TM that decides $\text{REACHABILITY} = \{(G,s,t)|\text{ directed graph } G \text{ has a path from } s \text{ to } t\}$ in $O(\log_2 n)$. However, we can proove that $\text{REACHABILITY} \in \text{DSPACE}((\log_2 n)^2)$ using recursion: note that a path from nod $s$ to node $t$ exists iff there is a node $u$ between them such that $s$ and $t$ reach $u$ in half the steps.
 
 \begin{algorithm}[H]
 \SetAlgoLined
@@ -435,36 +405,49 @@ From the Savitch's theorem, the following corollary over (at least) polynomial s
  \caption{\text{exists-path}}
 \end{algorithm}
 
-* Overview on time and space complexity classes
+Each calls requires at most  $\log_2 |V| \in O(log_2 n)$ cells, since the space used by the previous two calls is freed up, and no more than $\log_2 |V|$ calls are made so overall the algorithm performs in $O(\log_2 n)$.
 
-Considering space classes, we have $\mathbf{LOGSPACE} \subseteq \mathbf{NL} \subseteq \mathbf{PSPACE} = \mathbf{NPSPACE}$, and their relationship with time classes is as follows
-- $\mathbf{LOGSPACE}\math \subseteq \mathbf{P}, \quad \mathbf{NL} \subseteq \mathbf{P}$
-- $\mathbf{NP} \subseteq \mathbf{PSPACE}, \quad \mathbf{coNP} \subseteq \mathbf{PSPACE}$
-- $\mathbf{PSPACE} \subseteq \mathbf{EXP}$
-
-* Turing Machines with Oracles
+This reasoning is generalized to any language in $\mathbf{NSPACE}$ by the /Savitch's theorem/. When considering space, there is in fact not much difference between deterministic and non-deterministic Turing machines: unlike time, space can be reused.
 
 \begin{equation}
-\text{MIN-COVER}=\{(G,k)|\text{ undirected graph } G, \text{ the smallest vertex cover } VC \text{ is } |VC|=k\} \notag
+\text{NSPACE}(f(n)) \subseteq \text{DSPACE}(f^2(n)) \quad \forall n \in \mathbb{N}, \forall f:\mathbb{N} \rightarrow \mathbb{N}| f(n) \geq \log n \notag
 \end{equation}
 
-Our procedure should both verify that there is a vertex cover of size at most $k$ ($\text{VCOVER} \in \textbf{NP}$) and no vertex cover of size $k-1$ ($\overline{\text{VCOVER}} \in \textbf{coNP}$): we believe that $\textbf{NP} \neq \textbf{coNP}$, so unlikely this can be done in $\textbf{NP}$. We can rephrase the problem as
+As a corollary of Savitch's theorem, the difference between space required by TMs and NTMs is none in polynomial space.
 
 \begin{equation}
-\text{MIN-COVER}=\{(G,k)|(G,k) \in \text{VCOVER} \wedge (G,k-1) \notin \text{VCOVER}\} \notag
+\mathbf{PSPACE}=\bigcup_{c \geq 1} \text{DSPACE}(n^c),\quad  \mathbf{NSPACE}=\bigcup_{c \geq 1} \text{DSPACE}(n^c),\quad \mathbf{PSPACE} = \mathbf{NPSPACE} \notag
 \end{equation}
 
-Given a procedure $\text{check-cover}$ deciding $\text{VCOVER}$, we can call it as a sub-routine (an /oracle/). We only need a polynomial number of steps to decide $\text{MIN-cover}$, but the most difficult part done by the oracle.
+* Oracles
 
-A Turing machine with an /oracle/ for $L$ has an additional read/write tape, oracle tape, and three more states $q_?, q_{yes}, q_{not}$. To check if $w \in L$, write $w$ in the oracle tape and move to $q_?$: if the next state is $q_{yes}$, then $w \in L$.
+It is quite common for algorithms to rely on /subroutines/ to solve problems, and in fact TMs can rely on /oracles/ to solve specific types of problems. Considering the problem $\text{VCOVER}$, we might want to find the optimal (smallest) vertex cover for a given graph. 
 
-Using oracles we can define different complexity classes. Le $C$ be some complexity class
-- $\textbf{P}^C=\{L\L \text{ can be decided by a polynomial time } DTM \text{ with an oracle for some language } L' \in C\}$
-- $\textbf{NP}^C=\{L\L \text{ can be decided by a polynomial time } NTM \text{ with an oracle for some language } L' \in C\}$
+\begin{equation}
+\text{MIN-COVER}=\{(G,k)|G \text{ is an undirected graph and } k \text{is the size of its smallest vertex cover}}\} \notag
+\end{equation}
 
-For example, $\text{MIN-VCOVER} \in \texbf{P}^\textbf{NP}$. Note that $\textbf{NP} \subseteq \textbf{P}^\textbf{NP}$ and $\textbf{coNP} \subseteq \textbf{P}^\textbf{NP}$. Using oracles we can also define a /polynomial time heriarchy/, wich is an infinite hiearchy of complexity classes.
+This means devising  a procedure that verifies that there is
+1. A vertex cover of size at most $k$ ($\text{VCOVER} \in \textbf{NP}$).
+2. No vertex cover of size $k-1$ ($\overline{\text{VCOVER}} \in \textbf{coNP}$). If we believe that $\textbf{NP} \neq \textbf{coNP}$ then $\overline{\text{VCOVER}} \notin \textbf{NP}$.
 
-* Search problems with decision version
+So we can rephrase the problem as $\text{MIN-COVER}=\{(G,k)|(G,k) \in \text{VCOVER} \wedge (G,k-1) \notin \text{VCOVER}\}$. Given an oracle ~check-vcover~ that decides $\text{VCOVER}$, we following procedure requires only a polynomial number of steps to decide $\text{MIN-COVER}$.
+1. Let ~result1 = check-vcover(G,k);~
+2. Let ~k' = k-1;~
+3. Let ~result2 = check-vcover(G,k');~
+4. If ~result1 = True~ and ~result2 = True=~ then ~Accept~, otherwise ~Reject~
+
+A TM with an oracle for $L$ has an additional oracle tape (read-write), and additional states $q_?, q_{yes}, q_{not}$: to ask to the oracle if $w \in L$, the TM writes $w$ in the oracle tape and moves to $q_?$: if the next state is $q_{yes}$, then $w \in L$.
+
+We can now define additional complexity classes: let $C$ be some complexity class
+- $\textbf{P}^C$ contains the languages that can be decided in polynomial time by a TM with an oracle for some language $L \in C$.
+- $\textbf{NP}^C$ contains the languages that can be decided in polynomial time by a NTM with an oracle for some language $L \in C$.
+
+So $\text{MIN-VCOVER} \in \texbf{P}^\textbf{NP}$. Note that
+- $\textbf{NP} \subseteq \textbf{P}^\textbf{NP}$ and $\textbf{coNP} \subseteq \textbf{P}^\textbf{NP}$.
+- A /polynomial time hierarchy/ is an infinite hierarchy of complexity classes that generalizes $\mathbf{NP}$ and $\mathbf{co-NP}$ using oracles.
+
+* Search problems
 
 \begin{equation}
 \text{FMIN-VCOVER}=\min\{|VC|| VC\text{ is a vertex cover of }G\}\notag
@@ -481,7 +464,7 @@ For example, $\text{MIN-VCOVER} \in \texbf{P}^\textbf{NP}$. Note that $\textbf{N
 
 Let $\mathbf{FP}$ be the class of search problems that can be solved by a Turing machine with output tape in polynomial time, then $\text{FMIN-VCOVER} \in \textbf{FP}^\textbf{NP}$. We can actually improve the previous algorithm by employing binary search and reducing the number of steps from $O(|V|)$ to $O(\log_2 |V|)$, so $\text{FMIN-VCOVER} \in \textbf{FP}^{\textbf{NP} \left[ \log_2 n \right]}$.
 
-* The Travelling Salesman Problem
+** The Travelling Salesman Problem
 
 We define the /Functional Travelling Salesman Problem/ (FTSP) as, given a weighted undirected graph, finding the minimum cost of an Hamilton cycle (if it exists).
 
