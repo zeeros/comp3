@@ -424,7 +424,7 @@ As a corollary of Savitch's theorem, the difference between space required by TM
 It is quite common for algorithms to rely on /subroutines/ to solve problems, and in fact TMs can rely on /oracles/ to solve specific types of problems. Considering the problem $\text{VCOVER}$, we might want to find the optimal (smallest) vertex cover for a given graph. 
 
 \begin{equation}
-\text{MIN-COVER}=\{(G,k)|G \text{ is an undirected graph and } k \text{is the size of its smallest vertex cover}}\} \notag
+\text{MIN-COVER}=\{(G,k)|G \text{ is an undirected graph and } k \text{ is the size of its smallest vertex cover}}\} \notag
 \end{equation}
 
 This means devising  a procedure that verifies that there is
@@ -449,9 +449,13 @@ So $\text{MIN-VCOVER} \in \texbf{P}^\textbf{NP}$. Note that
 
 * Search problems
 
+Oracles are exactly the kind of tools needed to undestand the complexity of /search problems/: we can transfer the knowledge we have about a decision problem to its search version. Consider search problem
+
 \begin{equation}
 \text{FMIN-VCOVER}=\min\{|VC|| VC\text{ is a vertex cover of }G\}\notag
 \end{equation}
+
+We can devise a $O(|V|)$ algorithm that uses the $\text{VCOVER}$ oracle to solve the problem. Let $\mathbf{FP}$ be the class of search problems solvable by a TM with an output tape in polynomial time, than $\text{FMIN-VCOVER \in \mathbf{FP}^{\mathbf{NP}}$.
 
 \begin{algorithm}[H]
 \SetAlgoLined
@@ -462,11 +466,13 @@ So $\text{MIN-VCOVER} \in \texbf{P}^\textbf{NP}$. Note that
  write $k$ in the output tape
 \end{algorithm}
 
-Let $\mathbf{FP}$ be the class of search problems that can be solved by a Turing machine with output tape in polynomial time, then $\text{FMIN-VCOVER} \in \textbf{FP}^\textbf{NP}$. We can actually improve the previous algorithm by employing binary search and reducing the number of steps from $O(|V|)$ to $O(\log_2 |V|)$, so $\text{FMIN-VCOVER} \in \textbf{FP}^{\textbf{NP} \left[ \log_2 n \right]}$.
+We can actually improve the previous algorithm by employing binary search and reducing the number of steps from $O(|V|)$ to $O(\log_2 |V|)$. This improved algorithm proves thats $\text{FMIN-VCOVER} \in \textbf{FP}^{\textbf{NP} \left[ \log_2 n \right]}$, that is the class of search problems that can be solved in polynomial time with $O(\log_2 n)$ calls to an oracle for a $\textbf{NP}$ language.
 
 ** The Travelling Salesman Problem
 
-We define the /Functional Travelling Salesman Problem/ (FTSP) as, given a weighted undirected graph, finding the minimum cost of an Hamilton cycle (if it exists).
+Given a weighted undirected graph $G=(V,E,\lambda)$, with a weight function $\lambda: E \rightarrow \mathbb{N}$, we consider the /cost/ of a path to be the sum of its traversed edges. In the /Functional Travelling Salesman Problem/ (FTSP) the goal is to visit all the nodes of $G$ exactly ones, through what is called an /Hamiltonian path/ that has a minimum cost.
+
+To solve this search problem we might consider using an oracle for the related decision problem $TSP \in \mathbf{NP}$.
 
 \begin{equation}
 \text{TSP} = \{(G,K)|\text{ weighted, undirected graph } G \text{ with an Hamilton cycle costing at most } k\} \notag
@@ -512,3 +518,30 @@ A better algorithm relies again on binary search, resulting in $\text{FTSP} \in 
 \end{algorithm}
 
 Finally, since $\text{TSP} \in \textbf{NP-complete}$ also the specific $\text{FTSP} \in \textbf{NP-complete}$.
+
+** Restaurant
+
+Given a set of $k$ tables $T=\{1, \cdots, k\}$, a set of $n$ people $P=\{1,\cdots,n\}$ and for each person a list $L_i, i \in P$ of guests that person $i$ doesn't like. The problem of verifying if a given configuration is valid can be formalized as
+
+\begin{equation}
+\text{RESTAURANT}=\{(P,T,L_1,\cdots,L_n)|(P,T,L_1,\cdots,L_n) \text{ is a valid input which has a table assignment}\} \notag
+\end{equation}
+
+For the problem $\text{RESTAURANT}$ we can devise a NTM that
+- Guesses for each person $i$ a table $t_i$ in polynomial time.
+- Checks for each guess that no person in $L_i$ is in $t_i$ in polynomial time, if so accepts (otherwise rejects).
+
+Recall the [[Vertex coloring][Vertex Coloring]] problem. We can devise a procedure that constructs from $(G,k), G=(V,E)$ a string $(P,T,L_1,\cdots,L_n)$ such that $(G,k)$ has a k-coloring iff there is a table assignment for  $(P,T,L_1,\cdots,L_n)$.
+- $P=V$.
+- For each $i$, construct $L_i$ as the set of nodes of $G$ connected to node $i$.
+- $T=\{1,\cdots, k'\}$ for $k'=k$ colors, that requires linear time in $k$. However $k$ is an integer encoded with $m$ bits, so in the worst case $k=2^m -1$ and the procedure requires $O(2^m)$.
+
+Still we can devise a polynomial procedure that, before constructing the string as mentioned sets $k'=|V|$ if $k \geq |V|$. It is equivalent to the case in which we might have more colors than nodes a trivial k-coloring (one color per node): we can simply reduce the colors to the number of nodes, and consequently the resulting list $L_i$ will have a maximum size $|V|$.
+
+Such a procedure is indeed a reduction
+- If $G$ has a k-coloring $\mu$ (as said, with $k \leq |V|$), consider the function $\tau = \mu$: while $\mu$ assigns a color to each node, $\tau$ assigns a table to each guest. We have then that $\mu(i) \neq \mu(j), \forall \{i,j\} \in E$ and $\tau(i) \neq \tau(j), \forall i,j \in P$, since $\exists \{i,j\} \in E \Leftrightarrow i \in L_j \wedge j \in L_i$.
+- If  $(P,T,L_1,\cdots,L_n)$ has a table coloring $\tau$, then $i \in L_j, j \in L_i \Rightarrow \{i,j\} \in E \Rightarrow \tau(i) \neq \tau(j)$ so $\mu = \tau$ is also a k-coloring for $G$.
+
+
+
+

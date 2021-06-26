@@ -25,22 +25,22 @@ When we reach $q_5$, the heads of tape $2$ and $3$ are at the end of the respect
 
 Finally, the arch from $q_3$ to $q_5$ represents the case where we have read all the string in tape $1$ and skip to the checks made by $q_5$.
 
-To undestand the overall behaviour we explore the possible paths to reach $q_{accept}$
-- From $q_1$ to $q_{accept}$, so the empty string =-= is part of the language
-- $q_1 \rightarrow q_2 \rightarrow q_3 \rightarrow q_5 \rightarrow q_{accept}$
-  - $q_2$ copies from tape $1$ to tape $2$, let's call the resulting string in tape $2$ $w_1$
-  - $q_3$ copies the part following $w_1$ to tape $3$, let's call it $w_2$
-  - The string in tape $1$ is seen as $w_1 w_2$, each possible length of $w_1$ (and $w_2$) is tested on a different computational path
-  - $q_5$ checks that $w_1=w_2$, and if so we end up in $q_{accept}$
-    This means that strings of the form $w_1w_2$ s.t. $w_1=w_2,\quad w_1,w_2 \in \{a,b,c\}^+$ are part of the language
-- $q_1 \rightarrow q_2 \rightarrow q_3 \rightarrow q_4 \rightarrow q_5 \rightarrow q_{accept}$
-  - $q_2$ copies from tape $1$ to tape $2$, let's call the resulting string in tape $2$ $w_1$
-  - $q_3$ copies the part following $w_1$ to tape $3$, let's call it $w_2$
-  - $q_4$ copies the part following $w_2$ to tape $2$, let's call it $w_3$
-  - The string in tape $1$ is seen as $w_1 w_2 w_3$, each possible length of $w_1, w_2, w_3$ is tested on a different computational path
-  - The string in tape $2$ is of the form $w_1 w_3$
-  - $q_5$ checks that $w_1w_3=w_2$, and if so we end up in $q_{accept}$
-    This mean that strings of the form $w_1 w_2 w_3$ s.t. $w_2=w_1 w_3, \quad w_1,w_2,w_3 \in \{a,b,c\}^+$ are part of the language
+To undestand the overall behaviour we explore the possible paths to reach $q_{accept}$. First, we can reach $q_{accept}$ from $q_1$ in just one step, so the empty string =_= is part of the language.
+
+The second path we might take is $q_1 \rightarrow q_2 \rightarrow q_3 \rightarrow q_5 \rightarrow q_{accept}$
+- $q_2$ copies from tape $1$ to tape $2$, let's call the resulting string in tape $2$ $w_1$.
+- $q_3$ copies the part following $w_1$ to tape $3$, let's call it $w_2$.
+- So the string in tape $1$ is seen as $w_1 w_2$, each possible length of $w_1$ (and $w_2$) is tested on a different computational path.
+- $q_5$ checks that $w_1=w_2$, and if so we end up in $q_{accept}$. This means that strings of the form $w_1w_2$ s.t. $w_1=w_2,\quad w_1,w_2 \in \{a,b,c\}^+$ are part of the language.
+
+The third and last possible path is $q_1 \rightarrow q_2 \rightarrow q_3 \rightarrow q_4 \rightarrow q_5 \rightarrow q_{accept}$
+- $q_2$ copies from tape $1$ to tape $2$, let's call the resulting string in tape $2$ $w_1$.
+- $q_3$ copies the part following $w_1$ to tape $3$, let's call it $w_2$.
+- $q_4$ copies the part following $w_2$ to tape $2$, let's call it $w_3$.
+- The string in tape $1$ is seen as $w_1 w_2 w_3$, each possible length of $w_1, w_2, w_3$ is tested on a different computational path.
+- The string in tape $2$ is of the form $w_1 w_3$.
+- $q_5$ checks that $w_1w_3=w_2$, and if so we end up in $q_{accept}$.
+This means that strings of the form $w_1 w_2 w_3$ s.t. $w_2=w_1 w_3, \quad w_1,w_2,w_3 \in \{a,b,c\}^+$ are part of the language.
 We then conclude that the language decided by the machine is $L=\{w_1w_2w_3|w_1,w_2,w_3 \in \{a,b,c\}^*,\quad w_2=w_1w_3\}$.
 
 ** Deterministic or nondeterministic?
@@ -50,10 +50,10 @@ We are dealing with a nondeterministic Turing machine: we have an example of non
 ** Running time
 
 By running a nondeterministic machine we generate a computation tree that, in the case of parallel running, has a running time equivalent to the longest possible computation branch.
-- From $q_1$ to $q_2$ the input head doesn't move, so its constant time w.r.t. input
-- From $q_2$ to $q_5$ the input head always moves one step right by each iteration, so $O(n)$
-- In $q_5$ we read two tapes at the same time, each with length $n/2$
-We then conclude that smallest asymptotic time for this machine is $O(n)$
+- From $q_1$ to $q_2$ the input head doesn't move, so its constant time w.r.t. input.
+- From $q_2$ to $q_5$ the input head always moves one step right by each iteration, so $O(n)$.
+- In $q_5$ we read two tapes at the same time, each with length $n/2$.
+We then conclude that smallest asymptotic time for this machine is $O(n)$.
 
 ** Property
 
@@ -63,7 +63,7 @@ Let $K$ be the language previously described, we consider now the following prop
 P = \{<M>| \text{ every string that }M\text{ accepts is not in }K\}\notag
 \end{equation}
 \begin{equation}
-L=\{w_1w_2w_3|w_1,w_2,w_3 \in \{a,b,c\}^*,\quad w_2=w_1w_3\} \notag
+K=\{w_1w_2w_3|w_1,w_2,w_3 \in \{a,b,c\}^*,\quad w_2=w_1w_3\} \notag
 \end{equation}
 
 Remember that in general properties are languages that have as an input the encoding of a Turing machine, and for this reason we can deal with with them by using specific theoretical tools (e.g. Rice theorem).
@@ -73,15 +73,15 @@ Is $P$ non-trivial? So
 - $\exists$ a Turing machine $M$ s.t. $M \notin P$? :: Yes, for example the scheme provided at the beginning describes such a machine, or also a Turing machine that just accepts the empty string.
 We then conclude that $P$ is non-trivial.
 
-Is $P$ semantic? Remember that $P$ is semantic $\iff$ given $M_1,M_2$ s.t. $L(M_1)=L(M_2)=L$, either $M_1,M_2 \in P$ or $M_1,M_2 \notin P$. Given $L$, we have two consider two cases
-- $L \cap K \neq \emptyset \Rightarrow \exists w \in L$ s.t. $w \in K$, so $M_1,M_2 \notin P$
-- $L \cap K = \emptyset \Rightarrow w \notin K, \forall w \in L$, so $M_1,M_2 \in P$
+Is $P$ semantic? Remember that $P$ is semantic $\iff$ given $M_1,M_2$ s.t. $L(M_1)=L(M_2)=L$, either $M_1,M_2 \in P$ or $M_1,M_2 \notin P$. Given $L$, we have to consider two cases
+- $L \cap K \neq \emptyset \Rightarrow \exists w \in L$ s.t. $w \in K$, so $M_1,M_2 \notin P$.
+- $L \cap K = \emptyset \Rightarrow w \notin K, \forall w \in L$, so $M_1,M_2 \in P$.
 We then conclude that $P$ is semantic.
 
 Finally, is
-- $P \in \mathbf{R}$? :: So $\exists M$ that decides $P$? No, because we proved that $P$ is semantic and non-trivial and for the Rice's theorem we conclude $P \notin R$
-- $P \in \mathbf{RE} \setminus  \mathbf{R}$? :: So $P \notin R$ (just proven) and $\exists M$ that accepts $P$
-- $P \notin \mathbf{RE}$? :: So $\nexists M$ that accepts $P$
+- $P \in \mathbf{R}$? :: So $\exists M$ that decides $P$? No, because we proved that $P$ is semantic and non-trivial and for the Rice's theorem we conclude $P \notin R$.
+- $P \in \mathbf{RE} \setminus  \mathbf{R}$? :: So $P \notin R$ (just proven) and $\exists M$ that accepts $P$.
+- $P \notin \mathbf{RE}$? :: So $\nexists M$ that accepts $P$.
 So $\exists M$ that accepts $P$?
 - We may try to build a machine that, for each string accepted by a given TM, answers =Yes= if none of them is in $K$. However, this is impossible: the language accepted by the TM may be infinite and $M$ may never halt.
 - We can build a machine that answers =No= instead: if $\exists w \in K$, at some time $M$ will halt and answer =No=.
