@@ -542,6 +542,56 @@ Such a procedure is indeed a reduction
 - If $G$ has a k-coloring $\mu$ (as said, with $k \leq |V|$), consider the function $\tau = \mu$: while $\mu$ assigns a color to each node, $\tau$ assigns a table to each guest. We have then that $\mu(i) \neq \mu(j), \forall \{i,j\} \in E$ and $\tau(i) \neq \tau(j), \forall i,j \in P$, since $\exists \{i,j\} \in E \Leftrightarrow i \in L_j \wedge j \in L_i$.
 - If  $(P,T,L_1,\cdots,L_n)$ has a table coloring $\tau$, then $i \in L_j, j \in L_i \Rightarrow \{i,j\} \in E \Rightarrow \tau(i) \neq \tau(j)$ so $\mu = \tau$ is also a k-coloring for $G$.
 
+** Labels
 
+Given an undirected graph $G=(V,E)$, two integers $k,k'$ and a set integer /labels/ $X$, can we assign a label $p_v \in X$ to each node $v \in V$ such that
+- $\sum_{v \inV} p_v < k$, so the sum of the labels is strictly smaller than $k$.
+- $\sum_{e \in E} C_e \geq k'$, so the cost of each edge is at least $k'$, where the cost of an edge $C_e=\max\{p_u,p_v\},\e=\{u,v\} \in E$.
+
+An input for such a problem can be encoded as $(G,k,k',X)$,  and labeling as a function $l: V \rightarrow X$ such that $\sum_{v \in V} l(v) < k$ and $\sum_{\{u,v\} \in E} \max\{l(u),l(v)\} \geq k'$. The resulting problem can be formalized as
+
+\begin{equation}
+\text{LABELS} = \{(G,k,k',X)|(G,k,k',X) \text{ is a valid input that has a labeling}\} \notag
+\end{equation}
+
+For the problem $\text{LABELS}$ we can devise a NTM that decides the language in polynomial time.
+- Guesses for each node $v \in V$ a label $p_v \in X$, if $X$ is encoded using $m$ bits then labels take $|V| \cdot m$ cells.
+- Check $\sum_{v \in V} l(v) < k$, that requires summing $|V|$ numbers.
+- Check $\sum_{\{u,v\} \in E} \max\{l(u),l(v)\} \geq k'$, that requires summing $|E|$ numbers.
+
+So $\text{LABELS} \in \mathbf{NP}$, but is $\text{LABELS} \in \mathbf{NP-complete}$? To prove it, we can show that $\text{VCOVER} \leq \text{LABELS}$.
+- The first sum $\sum_{v \inV} p_v < k$ can be seen as counting the chosen nodes of a vertex cover.
+- The second sum $\sum_{e \in E} \max\{p_u,p_v\},\e=\{u,v\} \in E$ can be seen as counting how many edges are "touched" by the chosen nodes.
+
+Thus, given a string $G=(V,E)$ we can construct a string $(\bar{G},\bar{k},\bar{k}',X)$ such that $G$ has a vertex cover of size at most $k$ iff  $(\bar{G},\bar{k},\bar{k}',X)$ has a labeling, so
+- $\bar{G}=G$, $X=\{0,1\}$
+- $\bar{k}=k+1$, since the first sum is strictly smaller than $\bar{k}$.
+- $\bar{k}' = |E|$, since the second sum counts all the edges.
+
+Such a procedure is polynomial, since we are just copying $G$ and counting nodes and edges of $G$, and a proper reduction since
+- If $(G,k) \in \tex{VCOVER}$, then $G$ has a vertex cover of size at most $k$. Let the labeling function $l(v)=1$ if $v \in VC$ ($l(v)=0$ otherwise), the first sum is strictly less than $\bar{k}$: $\sum_{v \in V} l(v)  = |VC| \leq k < \bar{k}$. The second sum $\sum_{\{u,v\} \in E} \max\{l(u),l(v)\} = \bar{k}'=|E|$, since the cost of each edge is 1.
+- If $l$ is a labeling of  $(\bar{G}, \bar{k}, \bar{k}', X)$, then let $VC$ be the set of all nodes $v \in \bar{G}$ such that $l(v) = 1$. With $X=\{0,1\}$, the first sum $\sum_{v \in V} l(v) = |VC| \leq k < \bar{k}$. And since  $X=\{0,1\}$,  $\sum_{\{u,v\} \in E} \max\{l(u),l(v)\} = \bar{k}'=|E|$. So $VC$ is a vertex cover.
+
+Consider now the search problem $\text{MAX-LABELS}$: given an undirected graph $G$ an integer $k$ and a set integer /labels/ $X$, what is the largest $k'$ such that $(G,k,k',X) \in \text{LABELS}$? Using an oracle $\text{LABELS}$, we can solve the problem in polynomial-time by devising a TM that takes $(G,k,X)$.
+
+\begin{algorithm}[H]
+\SetAlgoLined
+ $x=\max(X)$\; $a=0$\; $b=|E| \cdot x$\;
+ \While{a <b}{
+  $k'=\left\lfloor (a+b)/2 \right\rfloor$\;
+  \eIf{$(G,k,k'+1,X) \in \text{LABELS}$}{
+    a = k'+1\;
+   }{
+     \eIf{$(G,k,k') \in \text{LABELS}$}{
+        write $k$ and halt\;
+      }{
+        b = k' -1\;
+      }
+   }
+ }
+ write $\bot$
+\end{algorithm}
+
+The algorithm works in $O(log_2 C)$, where $C=|E| \cdot x$. The number $C$ requires at most $|E|+m$ bits, where $m$ bits are used to encode $x$, so $C \in O(2^{|E|+m})$. We conclude, since the algorithm works in $O(|E|+m)$ wrt the size of the input, that $\text{MAX-LABELS} \in \mathbf{FP}^\mathbf{NP}$.
 
 
