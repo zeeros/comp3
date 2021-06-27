@@ -1,4 +1,5 @@
 #+TITLE: Computational Complexity
+#+LATEX_CLASS_OPTIONS: [a4paper,9pt]
 
 * Overview
 
