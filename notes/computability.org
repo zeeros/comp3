@@ -1,5 +1,6 @@
-
 #+TITLE: Computability
+#+LATEX_CLASS_OPTIONS: [a4paper,9pt]
+#+LATEX_HEADER: \usepackage[margin=1in]{geometry}
 
 * Summary
 
